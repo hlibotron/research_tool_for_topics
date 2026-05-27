@@ -1,0 +1,540 @@
+/* ── Theme Overrides ───────────────────────────────────────────────────────── */
+
+.themeToggle {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--subtle-bg);
+  color: var(--text);
+  padding: 9px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background .15s, border-color .15s, color .15s;
+}
+
+.themeToggle:hover {
+  border-color: rgba(47,125,246,.45);
+  background: rgba(47,125,246,.08);
+}
+
+.themeToggle span {
+  flex: 1;
+  text-align: left;
+}
+
+html:not([data-theme="dark"]) a {
+  color: #1d4ed8;
+}
+
+html:not([data-theme="dark"]) .content {
+  background: transparent;
+}
+
+html:not([data-theme="dark"]) :where(
+  .panel,
+  .metricCard,
+  .topbox,
+  .searchBox,
+  .quotaBox,
+  .summary-filter-control > div,
+  .summary-filter-control select,
+  .summary-filter-search,
+  .summary-evidence-footer,
+  .trend-radar-workspace,
+  .trend-filter-control,
+  .trend-filter-search,
+  .trend-filter-select,
+  .trend-video-row,
+  .trend-video-thumb,
+  .trend-evidence-thumb,
+  .opportunities-stat-card,
+  .opportunity-card,
+  .opportunity-card-body,
+  .opportunity-card-footer,
+  .opportunities-card,
+  .opp-filter-period,
+  .opp-filter-search,
+  .opp-filter-select,
+  .opp-filter-score,
+  .todayHero,
+  .todayHero .todayMetricStrip,
+  .todayMetricStrip,
+  .todayHero,
+  .todayMetric,
+  .todayPanel,
+  .todayWhySection,
+  .todaySecondaryCard,
+  .todayEvidencePanel,
+  .todayEvidenceCard,
+  .todayActionCard,
+  .todayIdeaCheck,
+  .todayNicheCard,
+  .todayThumbnail,
+  .idea-lab-panel,
+  .idea-input-panel,
+  .idea-input-card,
+  .idea-input-textarea,
+  .idea-lab-form,
+  .idea-form-card,
+  .idea-verdict,
+  .idea-comparison,
+  .idea-comparison-head,
+  .idea-comparison-row,
+  .idea-evidence,
+  .idea-output-card,
+  .similar-video-thumb,
+  .similar-videos-list,
+  .similar-video-row,
+  .brief-hero,
+  .brief-header-card,
+  .brief-summary-panel,
+  .brief-section,
+  .brief-section-body,
+  .brief-evidence-card,
+  .brief-evidence-metric-card,
+  .brief-video-card,
+  .brief-script-block,
+  .brief-hook-card,
+  .brief-broll-item,
+  .brief-action-item,
+  .brief-risk-item,
+  .summary-recommendation-card,
+  .infoTile,
+  .warningBox,
+  .opportunityCard,
+  .runCard,
+  .reportCard,
+  .shootCard,
+  .timelineItem,
+  .jobGroupCard,
+  .calWrap,
+  .dataHealthSummary > div,
+  .filterSummaryBar
+) {
+  background: var(--panel-bg);
+  border-color: var(--line);
+  box-shadow: var(--shadow);
+}
+
+html:not([data-theme="dark"]) :where(
+  .summary-filters,
+  .summary-recommendation-card,
+  .summary-evidence-footer,
+  .summary-filter-control > div,
+  .summary-filter-control select,
+  .summary-filter-search,
+  .trend-radar-workspace,
+  .trend-filter-control,
+  .trend-filter-search,
+  .trend-filter-select,
+  .trend-video-row,
+  .todayHero,
+  .todayHero .todayMetricStrip,
+  .todayMetricStrip,
+  .todayWhySection,
+  .todaySecondaryCard,
+  .todayEvidencePanel,
+  .todayIdeaCheck,
+  .todayNicheCard,
+  .todayThumbnail,
+  .idea-input-panel,
+  .idea-input-card,
+  .idea-input-textarea,
+  .idea-lab-form,
+  .idea-form-card,
+  .idea-verdict,
+  .idea-comparison,
+  .idea-comparison-head,
+  .idea-comparison-row,
+  .idea-evidence,
+  .idea-output-card,
+  .similar-videos-list,
+  .similar-video-row,
+  .brief-hero,
+  .brief-header-card,
+  .brief-summary-panel,
+  .brief-section,
+  .brief-section-body,
+  .brief-evidence-card,
+  .brief-evidence-metric-card,
+  .brief-video-card,
+  .brief-script-block,
+  .brief-hook-card,
+  .brief-broll-item,
+  .brief-action-item,
+  .opportunityCard,
+  .runCard,
+  .reportCard,
+  .shootCard,
+  .timelineItem,
+  .jobGroupCard,
+  .infoTile,
+  .markdownView .tableScroll
+) {
+  background: #ffffff;
+}
+
+html:not([data-theme="dark"]) :where(
+  input,
+  select,
+  textarea,
+  .cleanSelect,
+  .jobEditPanel input,
+  .jobEditPanel select,
+  .jobEditPanel textarea,
+  .summary-filter-control select,
+  .summary-filter-search input,
+  .trend-filter-control select,
+  .trend-filter-search input,
+  .trend-filter-select,
+  .opp-filter-period select,
+  .opp-filter-search input,
+  .opp-filter-select,
+  .opp-filter-score input,
+  .todayIdeaInput,
+  .idea-input-textarea
+) {
+  color: var(--text);
+  background-color: transparent;
+}
+
+html:not([data-theme="dark"]) :where(
+  .muted,
+  .brand small,
+  .nav a,
+  .topbox,
+  .metricCard p,
+  .metricCard small,
+  .emptyState p,
+  .markdownView p,
+  .markdownView ul,
+  .summary-header p,
+  .summary-kpi-card span,
+  .summary-kpi-card small,
+  .summary-format-list span,
+  .summary-evidence-footer span,
+  .todaySubtitle,
+  .todayHeroTime,
+  .todayHookText,
+  .todayMetricLabel,
+  .todayMetricSub,
+  .todayEvidenceBlockTitle,
+  .todayEvidenceFooterRow,
+  .todayMuted,
+  .todaySecondaryReason,
+  .todaySecondaryScore span,
+  .idea-lab-subtitle,
+  .idea-lab-footer-note,
+  .idea-verdict-label,
+  .idea-verdict-summary,
+  .idea-output-card-meta,
+  .similar-video-channel,
+  .brief-subtitle,
+  .brief-summary-label,
+  .brief-structure-empty,
+  .trend-summary-card span,
+  .trend-summary-card p,
+  .trend-video-main span,
+  .trend-video-row div > span,
+  .trend-evidence-video span,
+  .trend-evidence-video small,
+  .opportunityCard p,
+  .runCard p,
+  .reportCard span,
+  .reportCard small,
+  .barRow span,
+  .sidebarAdmin,
+  .sidebarQuotaMini
+) {
+  color: var(--muted) !important;
+}
+
+html:not([data-theme="dark"]) :where(
+  .brand,
+  .topbox strong,
+  .panel,
+  .panel h1,
+  .panel h2,
+  .panel h3,
+  .metricNumber,
+  .infoTile strong,
+  .summary-header h1,
+  .summary-kpi-card strong,
+  .summary-insight-card h3,
+  .summary-format-list strong,
+  .summary-recommendation-card h3,
+  .summary-evidence-footer strong,
+  .todayPageHeader h1,
+  .todayHeroTitle,
+  .todaySectionTitle,
+  .todayMetricValue,
+  .todaySecondaryTitle,
+  .todaySecondaryScore,
+  .todayBigStat.neutral,
+  .todayNicheTag,
+  .idea-input-label,
+  .idea-verdict-text,
+  .idea-comparison-cell,
+  .idea-output-card-title,
+  .similar-video-title,
+  .brief-header-card h1,
+  .brief-summary-title,
+  .brief-section-title,
+  .brief-structure-desc,
+  .brief-broll-item,
+  .brief-action-item,
+  .trend-radar-header h1,
+  .trend-table td strong,
+  .trend-video-main strong,
+  .trend-video-row div > strong,
+  .trend-evidence-video strong,
+  .trend-evidence-hashtags span,
+  .opportunityCard strong,
+  .runCard strong,
+  .reportCard strong,
+  .markdownView,
+  .markdownView h1,
+  .markdownView h2,
+  .markdownView h3,
+  .nav a:hover,
+  td
+) {
+  color: var(--text);
+}
+
+html:not([data-theme="dark"]) .sidebar {
+  box-shadow: 12px 0 36px rgba(15,23,42,.04);
+}
+
+html:not([data-theme="dark"]) .nav a.active {
+  background: #eef4ff;
+  color: #1d4ed8;
+  box-shadow: inset 0 0 0 1px rgba(47,125,246,.16);
+}
+
+html:not([data-theme="dark"]) .button,
+html:not([data-theme="dark"]) .iconButton {
+  background: #2563eb;
+  border-color: #1d4ed8;
+  color: #ffffff;
+}
+
+html:not([data-theme="dark"]) .button.ghost,
+html:not([data-theme="dark"]) .opp-filter-reset,
+html:not([data-theme="dark"]) .summary-rec-link {
+  background: #ffffff;
+  color: #1d4ed8;
+  border-color: var(--line);
+}
+
+html:not([data-theme="dark"]) .button.danger {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+html:not([data-theme="dark"]) .pill {
+  background: #eef2f7;
+  color: #475569;
+}
+
+html:not([data-theme="dark"]) .pill.green { background: #dcfce7; color: #166534; }
+html:not([data-theme="dark"]) .pill.blue { background: #dbeafe; color: #1d4ed8; }
+html:not([data-theme="dark"]) .pill.red { background: #fee2e2; color: #b91c1c; }
+html:not([data-theme="dark"]) .pill.orange { background: #ffedd5; color: #c2410c; }
+html:not([data-theme="dark"]) .pill.purple { background: #ede9fe; color: #6d28d9; }
+
+html:not([data-theme="dark"]) :where(
+  .periodPicker,
+  .compactSegment,
+  .segmented,
+  .jobViewToggle,
+  .trend-tabs,
+  .trend-filters,
+  .summary-filters,
+  .hashtagToolbar,
+  .advancedFilters,
+  .filterBox,
+  .metadataTags span,
+  .tagList span,
+  .ideaMetrics > div,
+  .scoreBreakdownRow div,
+  .barTrack,
+  .progress,
+  .summary-chart-fallback > div,
+  .summary-mini-list > div,
+  .summary-format-list > div,
+  .trend-evidence-hashtags > div,
+  .trend-evidence-video
+) {
+  background: var(--subtle-bg);
+  border-color: var(--line);
+}
+
+html:not([data-theme="dark"]) :where(
+  .todayHero .todayMetricStrip,
+  .todayMetricItem,
+  .todayEvidenceFooterRow,
+  .todaySecondaryCard,
+  .todayNicheCard,
+  .todayEvidencePanel,
+  .todayWhySection,
+  .todayIdeaCheck
+) {
+  border-color: var(--line);
+}
+
+html:not([data-theme="dark"]) .todayHero .todayMetricStrip,
+html:not([data-theme="dark"]) .todayMetricStrip {
+  background: #ffffff;
+  border-color: var(--line);
+  box-shadow: none;
+}
+
+html:not([data-theme="dark"]) .todayHero .todayMetricItem,
+html:not([data-theme="dark"]) .todayMetricItem {
+  background: #ffffff;
+  border-color: var(--line);
+}
+
+html:not([data-theme="dark"]) .todayIdeaInput {
+  background: #f8fafc;
+  border-color: var(--line);
+  color: var(--text);
+}
+
+html:not([data-theme="dark"]) :where(.todayIdeaInput, .idea-input-textarea)::placeholder {
+  color: var(--muted);
+}
+
+html:not([data-theme="dark"]) .idea-input-textarea {
+  background: #f8fafc;
+  border-color: var(--line);
+  color: var(--text);
+}
+
+html:not([data-theme="dark"]) .todayThumbnail {
+  background: #f1f5f9;
+}
+
+html:not([data-theme="dark"]) .todayThumbnailPlay {
+  background: #2563eb;
+  box-shadow: 0 10px 24px rgba(37,99,235,.18);
+}
+
+html:not([data-theme="dark"]) .todayHookBox {
+  background: #eff6ff;
+}
+
+html:not([data-theme="dark"]) .todayEvidencePanel svg :where(path[stroke="rgba(27,49,72,0.9)"], circle[stroke="rgba(27,49,72,0.9)"]) {
+  stroke: #e2e8f0;
+}
+
+html:not([data-theme="dark"]) :where(
+  .todayVerdictwatch,
+  .todayverdictnetural,
+  .todayVerdictadapt,
+  .todayBadgeneutral
+) {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+html:not([data-theme="dark"]) :where(
+  .periodPicker button,
+  .compactSegment button,
+  .segmented button,
+  .jobViewToggle button,
+  .trend-tabs button
+) {
+  color: var(--muted);
+}
+
+html:not([data-theme="dark"]) :where(
+  .periodPicker button.active,
+  .compactSegment button.active,
+  .segmented button.active,
+  .jobViewToggle button.active,
+  .trend-tabs button.active
+) {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+html:not([data-theme="dark"]) table th {
+  color: var(--muted);
+  background: #f8fafc;
+}
+
+html:not([data-theme="dark"]) table td {
+  border-bottom-color: #e2e8f0;
+}
+
+html:not([data-theme="dark"]) .emptyState {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+html:not([data-theme="dark"]) .warningBox {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #9a3412;
+}
+
+html:not([data-theme="dark"]) .skeleton,
+html:not([data-theme="dark"]) .skeletonBlock {
+  background: linear-gradient(90deg, #eef2f7 25%, #e2e8f0 50%, #eef2f7 75%);
+  background-size: 200% 100%;
+}
+
+html:not([data-theme="dark"]) .toastMessage.green { background: #ecfdf5; border-color: #86efac; color: #166534; }
+html:not([data-theme="dark"]) .toastMessage.blue { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
+html:not([data-theme="dark"]) .toastMessage.red { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+html:not([data-theme="dark"]) .toastMessage.orange { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+
+html:not([data-theme="dark"]) :where(.positiveChange, .trend-positive, .summary-mini-list strong.green, .summary-ranking-table .green, .summary-chart-fallback .green) {
+  color: #15803d;
+}
+
+html:not([data-theme="dark"]) :where(.negativeChange, .trend-negative, .summary-mini-list strong.red, .summary-ranking-table .red, .summary-chart-fallback .red) {
+  color: #dc2626;
+}
+
+html:not([data-theme="dark"]) :where(.metricIcon, .summary-kpi-icon, .trend-summary-icon, .emptyState > span, .sidebarAdminAvatar) {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+html:not([data-theme="dark"]) :where(.metricIcon.green, .summary-kpi-green .summary-kpi-icon, .trend-summary-card-green .trend-summary-icon) {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+html:not([data-theme="dark"]) :where(.metricIcon.orange, .summary-kpi-orange .summary-kpi-icon, .trend-summary-card-orange .trend-summary-icon) {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+html:not([data-theme="dark"]) :where(.metricIcon.red, .summary-kpi-red .summary-kpi-icon, .trend-summary-card-red .trend-summary-icon) {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+html:not([data-theme="dark"]) .trend-evidence-badge {
+  background:
+    radial-gradient(circle at center, #ffffff 58%, transparent 59%),
+    conic-gradient(var(--badge-color) var(--evidence), #e2e8f0 0);
+}
+
+html:not([data-theme="dark"]) .markdownView {
+  color: var(--text);
+}
+
+html:not([data-theme="dark"]) .calDayBody,
+html:not([data-theme="dark"]) .calTimeAxis {
+  background: #ffffff;
+}

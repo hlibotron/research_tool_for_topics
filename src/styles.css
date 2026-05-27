@@ -1,4 +1,25 @@
 :root {
+  color-scheme: light;
+  --bg: #f6f8fc;
+  --panel: #ffffff;
+  --line: #dbe4ef;
+  --text: #111827;
+  --muted: #64748b;
+  --blue: #2f7df6;
+  --green: #159957;
+  --orange: #d97706;
+  --red: #dc2626;
+  --purple: #7c3aed;
+  --body-bg: radial-gradient(circle at 50% 0%, #ffffff 0, var(--bg) 46%);
+  --sidebar-bg: linear-gradient(180deg, rgba(255,255,255,.98), rgba(244,247,252,.98));
+  --panel-bg: linear-gradient(145deg, rgba(255,255,255,.98), rgba(248,251,255,.98));
+  --subtle-bg: rgba(241, 245, 249, .78);
+  --subtle-bg-strong: rgba(226, 232, 240, .8);
+  --shadow: 0 16px 44px rgba(15, 23, 42, .08);
+  --cal-row-h: 28px;
+}
+
+html[data-theme="dark"] {
   color-scheme: dark;
   --bg: #020a13;
   --panel: #091725;
@@ -10,7 +31,12 @@
   --orange: #f59e2e;
   --red: #e75d5d;
   --purple: #9b6cff;
-  --cal-row-h: 28px;
+  --body-bg: radial-gradient(circle at 50% 0%, #102134 0, var(--bg) 42%);
+  --sidebar-bg: linear-gradient(180deg, rgba(7,18,30,.96), rgba(2,10,19,.98));
+  --panel-bg: linear-gradient(145deg, rgba(13,31,49,.94), rgba(5,16,27,.94));
+  --subtle-bg: rgba(2,10,19,.22);
+  --subtle-bg-strong: rgba(2,10,19,.34);
+  --shadow: 0 18px 60px rgba(0,0,0,.25);
 }
 
 * { box-sizing: border-box; }
@@ -18,7 +44,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(circle at 50% 0%, #102134 0, var(--bg) 42%);
+  background: var(--body-bg);
   color: var(--text);
   font: 14px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
@@ -44,11 +70,14 @@ textarea:focus-visible {
 
 .sidebar {
   border-right: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(7,18,30,.96), rgba(2,10,19,.98));
+  background: var(--sidebar-bg);
   padding: 22px 16px;
   position: sticky;
   top: 0;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
 .brand {
@@ -147,9 +176,9 @@ textarea:focus-visible {
 
 .topbox, .searchBox, .panel, .metricCard {
   border: 1px solid var(--line);
-  background: linear-gradient(145deg, rgba(13,31,49,.94), rgba(5,16,27,.94));
+  background: var(--panel-bg);
   border-radius: 12px;
-  box-shadow: 0 18px 60px rgba(0,0,0,.25);
+  box-shadow: var(--shadow);
 }
 
 .topbox { padding: 14px 16px; color: var(--muted); }
@@ -275,7 +304,7 @@ th, td {
 }
 
 th { color: var(--muted); font-size: 12px; font-weight: 600; }
-td { color: #dcecff; font-size: 13px; }
+td { color: var(--text); font-size: 13px; }
 
 .truncate {
   white-space: nowrap;
@@ -676,6 +705,83 @@ td { color: #dcecff; font-size: 13px; }
   flex-wrap: wrap;
   gap: 10px;
   margin: 0 0 16px;
+}
+
+.llmModelGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0 0 16px;
+}
+
+.llmModelPanel {
+  min-height: 100%;
+}
+
+.llmModelFacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.llmModelFacts div {
+  border: 1px solid rgba(72,101,132,.34);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(2,10,19,.22);
+}
+
+.llmModelFacts span,
+.llmTrainingBar span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.llmModelFacts strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.llmModelFacts.compact {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.llmTrainingBars {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.llmTrainingBar > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.llmImprovementList {
+  display: grid;
+  gap: 10px;
+}
+
+.llmImprovementList article {
+  border: 1px solid rgba(72,101,132,.34);
+  border-radius: 8px;
+  padding: 11px;
+  background: rgba(2,10,19,.22);
+}
+
+.llmImprovementList strong {
+  display: block;
+  margin: 8px 0 4px;
+}
+
+.llmImprovementList p {
+  margin: 0;
+  color: var(--muted);
 }
 
 .timeline {
@@ -2095,7 +2201,7 @@ tr.selectedRow td { background: rgba(47,125,246,.08); }
   .app { grid-template-columns: 1fr; }
   .sidebar { position: relative; height: auto; }
   .quotaBox { position: static; margin-top: 18px; }
-  .topbar, .cards, .layout, .twoColumns, .miniGrid, .quotaSummaryGrid, .reportsLayout, .summaryHero, .summaryHeroGrid, .summaryGrid, .analyticsGrid, .summaryTopbar, .summaryFilterPanel, .summaryKpiGrid, .summaryMainGrid, .summaryBottomGrid, .donutLayout, .hashtagToolbar, .analyticsHeader, .analyticsKpiRow, .ideasKpiRow, .technicalKpiRow, .decisionGrid, .analyticsFilters, .analyticsMainGrid, .analyticsTabsGrid, .analyticsSkeleton, .ideasGrid, .technicalGrid, .jobManagerGrid, .jobGroupGrid, .jobFilters { grid-template-columns: 1fr; }
+  .topbar, .cards, .layout, .twoColumns, .miniGrid, .quotaSummaryGrid, .reportsLayout, .llmModelGrid, .summaryHero, .summaryHeroGrid, .summaryGrid, .analyticsGrid, .summaryTopbar, .summaryFilterPanel, .summaryKpiGrid, .summaryMainGrid, .summaryBottomGrid, .donutLayout, .hashtagToolbar, .analyticsHeader, .analyticsKpiRow, .ideasKpiRow, .technicalKpiRow, .decisionGrid, .analyticsFilters, .analyticsMainGrid, .analyticsTabsGrid, .analyticsSkeleton, .ideasGrid, .technicalGrid, .jobManagerGrid, .jobGroupGrid, .jobFilters { grid-template-columns: 1fr; }
   table { min-width: 760px; }
   .panel { overflow: auto; }
   .opportunityCard, .runCard, .shootCard { grid-template-columns: 1fr; }
@@ -2117,6 +2223,7 @@ tr.selectedRow td { background: rgba(47,125,246,.08); }
   .analyticsMetricCard strong { font-size: 21px; }
   .ideaCardHeader, .ideaMetrics { grid-template-columns: 1fr; }
   .jobAggregateRow { grid-template-columns: 1fr; }
+  .llmModelFacts, .llmModelFacts.compact { grid-template-columns: 1fr; }
 }
 
 .commandHero {
@@ -2662,4 +2769,62 @@ tr.selectedRow td { background: rgba(47,125,246,.08); }
 .toastMessage.blue  { background: #0d2545; border: 1px solid var(--blue);  color: #90c4ff; }
 .toastMessage.red   { background: #3d1b1b; border: 1px solid var(--red);   color: #ffa5a5; }
 @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ── Shell redesign additions ───────────────────────────────────────────────── */
+
+.brandIconBlue {
+  background: linear-gradient(135deg, #1a4fae 0%, #2f7df6 100%);
+  border-color: #4a90f5;
+  color: #fff;
+  box-shadow: 0 0 18px rgba(47,125,246,.4);
+}
+
+.navDivider {
+  height: 1px;
+  background: var(--line);
+  margin: 8px 0;
+}
+
+.sidebarBottom {
+  margin-top: auto;
+  padding: 12px 4px 0;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+}
+
+.sidebarAdmin {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  transition: background 0.15s;
+}
+
+.sidebarAdmin:hover { background: rgba(47,125,246,.08); }
+
+.sidebarAdminAvatar {
+  width: 28px;
+  height: 28px;
+  background: rgba(47,125,246,.18);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--blue);
+  flex-shrink: 0;
+}
+
+.sidebarAdmin span:not(.sidebarAdminAvatar) { flex: 1; }
+
+.sidebarQuotaMini {
+  display: grid;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 0 6px 4px;
+}
 .jobViewToggle button.active { background: var(--blue); color: #fff; }

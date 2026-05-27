@@ -4,50 +4,61 @@ import {
   Activity,
   AlertTriangle,
   BarChart3,
+  Bell,
   Bot,
   CalendarClock,
   CalendarDays,
+  ChevronDown,
   ClipboardList,
   ExternalLink,
   Eye,
   FileText,
   Gauge,
   Hash,
+  Home,
   LayoutDashboard,
   Lightbulb,
+  Moon,
   Play,
   RefreshCw,
   Search,
   Settings,
+  Sparkles,
   Square,
   Star,
+  Sun,
   TrendingDown,
   TrendingUp,
+  User,
+  Youtube,
   Zap,
 } from 'lucide-react';
 import './styles.css';
+import { ToastContext, navigateTo, Link, api, usePolling } from './lib/shared.jsx';
+import { compactNumber, percentValue, formatLabel, actionTone, trendTone, confidenceTone, numberFmt } from './lib/formatters.js';
+import TodayPage from './pages/TodayPage.jsx';
+import OpportunitiesPage from './pages/OpportunitiesPage.jsx';
+import IdeaLabPage from './pages/IdeaLabPage.jsx';
+import TrendRadarPage from './pages/TrendRadarPage.jsx';
+import SummaryPage from './pages/SummaryPage.jsx';
+import BriefPage from './pages/BriefPage.jsx';
+import DataSyncPage from './pages/DataSyncPage.jsx';
+import './styles/theme.css';
 
-const numberFmt = new Intl.NumberFormat('uk-UA');
 const reportNumberFmt = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2,
 });
 
 const QuotaContext = React.createContext(null);
-const ToastContext = React.createContext(() => {});
+const ThemeContext = React.createContext({ theme: 'light', toggleTheme: () => {} });
 
-function compactNumber(value) {
-  const number = Number(value || 0);
-  if (!Number.isFinite(number)) return '0';
-  if (Math.abs(number) >= 1000000000) return `${(number / 1000000000).toFixed(1)}B`;
-  if (Math.abs(number) >= 1000000) return `${(number / 1000000).toFixed(1)}M`;
-  if (Math.abs(number) >= 1000) return `${(number / 1000).toFixed(1)}K`;
-  return numberFmt.format(Math.round(number));
-}
-
-function percentValue(value) {
-  const number = Number(value || 0);
-  if (!Number.isFinite(number)) return '0%';
-  return `${number > 0 ? '+' : ''}${number.toFixed(1)}%`;
+function getInitialTheme() {
+  try {
+    const stored = window.localStorage.getItem('dashboard-theme');
+    return stored === 'dark' ? 'dark' : 'light';
+  } catch {
+    return 'light';
+  }
 }
 
 function routeFromWindow() {
@@ -58,16 +69,6 @@ function routeFromWindow() {
   };
 }
 
-function navigateTo(href) {
-  const url = new URL(href, window.location.origin);
-  if (url.origin !== window.location.origin) {
-    window.location.href = href;
-    return;
-  }
-  window.history.pushState({}, '', `${url.pathname}${url.search}${url.hash}`);
-  window.dispatchEvent(new Event('popstate'));
-}
-
 function useRoute() {
   const [route, setRoute] = useState(routeFromWindow);
   useEffect(() => {
@@ -76,61 +77,6 @@ function useRoute() {
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
   return route;
-}
-
-function Link({ href, className, children, onClick, ...props }) {
-  const handleClick = (event) => {
-    onClick?.(event);
-    if (
-      event.defaultPrevented ||
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey ||
-      props.target
-    ) {
-      return;
-    }
-    event.preventDefault();
-    navigateTo(href);
-  };
-  return <a href={href} className={className} onClick={handleClick} {...props}>{children}</a>;
-}
-
-async function api(path, options) {
-  const response = await fetch(path, { cache: 'no-store', ...options });
-  const contentType = response.headers.get('content-type') || '';
-  const data = contentType.includes('application/json') ? await response.json() : await response.text();
-  if (!response.ok) {
-    throw new Error(data?.error || data || 'Request failed');
-  }
-  return data;
-}
-
-function usePolling(loader, deps = [], interval = 30000) {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  const load = async () => {
-    try {
-      setError('');
-      setData(await loader());
-    } catch (err) {
-      setError(err.message || String(err));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    load();
-    const timer = window.setInterval(load, interval);
-    return () => window.clearInterval(timer);
-  }, deps);
-
-  return { data, error, loading, reload: load };
 }
 
 function useAutoMessage(delay = 6000) {
@@ -211,36 +157,48 @@ function ToastMessage({ toast }) {
 
 function Shell({ active, children, quota: quotaProp }) {
   const quotaCtx = useContext(QuotaContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const quota = quotaCtx || quotaProp;
-  const used = quota?.quota_used || 0;
-  const limit = quota?.quota_limit || 10000;
   const pct = quota?.quota_pct || 0;
   return (
     <div className="app">
       <aside className="sidebar">
         <Link className="brand" href="/">
-          <span className="brandIcon"><Play size={20} /></span>
+          <span className="brandIcon brandIconBlue"><Zap size={18} /></span>
           <span>
-            <strong>AI Video Pipeline</strong>
+            <strong>TrendPilot AI</strong>
             <small>AI-відео аналітика</small>
           </span>
         </Link>
         <nav className="nav">
-          <Link className={active === 'dashboard' ? 'active' : ''} href="/"><LayoutDashboard size={18} />Command Center</Link>
-          <Link className={active === 'trends' ? 'active' : ''} href="/trends"><TrendingUp size={18} />Trend Radar</Link>
-          <Link className={active === 'opportunities' ? 'active' : ''} href="/opportunities"><Star size={18} />Opportunity Board</Link>
+          <Link className={active === 'today' || active === 'dashboard' ? 'active' : ''} href="/"><Home size={18} />Сьогодні</Link>
+          <Link className={active === 'opportunities' ? 'active' : ''} href="/opportunities"><Star size={18} />Можливості</Link>
           <Link className={active === 'ideaLab' ? 'active' : ''} href="/idea-lab"><Lightbulb size={18} />Idea Lab</Link>
-          <Link className={active === 'analytics' ? 'active' : ''} href="/analytics"><BarChart3 size={18} />Analytics</Link>
-          <Link className={active === 'dataHealth' ? 'active' : ''} href="/data-health"><Gauge size={18} />Data Health</Link>
-          <Link className={active === 'jobs' ? 'active' : ''} href="/jobs"><ClipboardList size={18} />Jobs</Link>
-          <Link className={active === 'reports' ? 'active' : ''} href="/reports"><FileText size={18} />Reports</Link>
-          <Link className={active === 'llm' ? 'active' : ''} href="/llm"><Bot size={18} />LLM</Link>
+          <Link className={active === 'trends' ? 'active' : ''} href="/trends"><TrendingUp size={18} />Trend Radar</Link>
+          <Link className={active === 'analytics' || active === 'summary' ? 'active' : ''} href="/summary"><BarChart3 size={18} />Summary</Link>
+          <Link className={active === 'brief' ? 'active' : ''} href="/brief"><FileText size={18} />Брифи</Link>
+          <div className="navDivider" />
+          <Link className={active === 'dataHealth' ? 'active' : ''} href="/data-health"><Gauge size={14} style={{ opacity: 0.6 }} />Data Health</Link>
+          <Link className={active === 'jobs' ? 'active' : ''} href="/jobs"><ClipboardList size={14} style={{ opacity: 0.6 }} />Оновлення даних</Link>
+          <Link className={active === 'reports' ? 'active' : ''} href="/reports"><FileText size={14} style={{ opacity: 0.6 }} />Reports</Link>
+          <Link className={active === 'llm' ? 'active' : ''} href="/llm"><Bot size={14} style={{ opacity: 0.6 }} />LLM</Link>
         </nav>
-        <div className="quotaBox">
-          <p>Використання квоти сьогодні</p>
-          <div className="quotaValue">{numberFmt.format(used)} <span>/ {numberFmt.format(limit)}</span></div>
-          <Progress value={pct} />
-          <small>{pct}% використано</small>
+        <div className="sidebarBottom">
+          <button className="themeToggle" type="button" onClick={toggleTheme} aria-label="Перемкнути тему">
+            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            <span>{theme === 'dark' ? 'Світла тема' : 'Темна тема'}</span>
+          </button>
+          <div className="sidebarAdmin">
+            <span className="sidebarAdminAvatar"><User size={14} /></span>
+            <span>Admin</span>
+            <ChevronDown size={14} />
+          </div>
+          {pct > 0 && (
+            <div className="sidebarQuotaMini">
+              <Progress value={pct} />
+              <span>{pct}% квоти</span>
+            </div>
+          )}
         </div>
       </aside>
       <main className="content routeView">{children}</main>
@@ -377,37 +335,6 @@ function DashboardPage() {
       </section>
     </Shell>
   );
-}
-
-function formatLabel(value) {
-  return {
-    shorts: 'Shorts',
-    long_video: 'Long video',
-    stream: 'Stream',
-    tutorial: 'Tutorial',
-    comparison: 'Comparison',
-    reaction: 'Reaction',
-    experiment: 'Experiment',
-  }[value] || value || '-';
-}
-
-function actionTone(action) {
-  if (action === 'shoot_now') return 'green';
-  if (action === 'avoid') return 'red';
-  if (action === 'watch') return 'orange';
-  return 'blue';
-}
-
-function trendTone(status) {
-  if (status === 'rising') return 'green';
-  if (status === 'falling') return 'red';
-  return 'orange';
-}
-
-function confidenceTone(confidence) {
-  if (confidence === 'high') return 'green';
-  if (confidence === 'low') return 'red';
-  return 'orange';
 }
 
 function OpportunityScoreBadge({ opportunity }) {
@@ -1507,6 +1434,24 @@ function ReportsPage({ route }) {
   );
 }
 
+function formatCounts(counts) {
+  if (!counts || typeof counts !== 'object' || !Object.keys(counts).length) return '-';
+  return Object.entries(counts).map(([key, value]) => `${key}: ${value}`).join(', ');
+}
+
+function LlmTrainingBar({ label, value, target }) {
+  const pct = target ? Math.min(100, Math.round(Number(value || 0) / Number(target || 1) * 100)) : 0;
+  return (
+    <div className="llmTrainingBar">
+      <div>
+        <span>{label}</span>
+        <strong>{numberFmt.format(value || 0)} / {numberFmt.format(target || 0)}</strong>
+      </div>
+      <Progress value={pct} />
+    </div>
+  );
+}
+
 function LlmPage() {
   const { data, error, loading, reload } = useLlmAnalysis();
   const [launching, setLaunching] = useState('');
@@ -1519,6 +1464,13 @@ function LlmPage() {
   const scheduled = data?.scheduled || [];
   const ollama = data?.ollama || {};
   const ollamaModels = ollama.models || [];
+  const llmModel = data?.llm_model || {};
+  const modelCard = llmModel.model_card || {};
+  const trainingData = llmModel.training_data || {};
+  const trainingStatus = llmModel.training_status || {};
+  const evaluation = llmModel.evaluation || {};
+  const improvementPlan = llmModel.improvement_plan || [];
+  const [training, setTraining] = useState(false);
 
   async function runLlmJob(jobName) {
     setLaunching(jobName);
@@ -1558,6 +1510,24 @@ function LlmPage() {
     }
   }
 
+  async function refreshTrainingReport() {
+    setTraining(true);
+    setMessage({ tone: 'blue', text: 'Оновлюю LLM training/evaluation report на реальних локальних даних...' });
+    try {
+      const result = await api('/api/llm-training', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      setMessage({ tone: 'green', text: result.stdout || 'LLM model report оновлено.' });
+      reload();
+    } catch (err) {
+      setMessage({ tone: 'red', text: `Не вдалося оновити LLM training report: ${err.message || String(err)}` });
+    } finally {
+      setTraining(false);
+    }
+  }
+
   const llmJob = scheduled.find((job) => job.name.includes('llm')) || scheduled.find((job) => String(job.command || '').includes('--llm'));
   const deterministicJob = scheduled.find((job) => !job.name.includes('llm') && String(job.command || '').includes('analyze_youtube_opportunities.py'));
   const activeLlmRun = runs.find((run) => run.status === 'running' && (String(run.command || '').includes('--llm') || String(run.job_name || '').includes('llm')));
@@ -1581,7 +1551,7 @@ function LlmPage() {
         <MetricCard icon={<FileText size={24} />} label="Decision report" value={data?.deterministic_available ? 'Є' : 'Немає'} hint={artifacts.deterministic?.updated_at || '-'} tone="green" />
         <MetricCard icon={<Bot size={24} />} label="LLM synthesis" value={data?.llm_available ? 'Є' : 'Немає'} hint={data?.llm_available ? artifacts.llm?.updated_at : 'ще не запускався'} tone="orange" />
         <MetricCard icon={<Activity size={24} />} label="Signals" value={numberFmt.format(decisions.signals_analyzed || 0)} hint={`${numberFmt.format(decisions.clusters || 0)} кластерів`} />
-        <MetricCard icon={<CalendarClock size={24} />} label="Ollama / GPU" value={ollamaBusy ? 'Зайнято' : 'Вільно'} hint={ollamaBusy ? ollamaModels.map((model) => model.name).join(', ') : llmJob?.next_run_ua || '-'} tone={ollamaBusy ? 'orange' : 'green'} />
+        <MetricCard icon={<Gauge size={24} />} label="Training labels" value={numberFmt.format(trainingData.supervised_examples || 0)} hint={`${numberFmt.format(trainingData.decision_examples || 0)} decision examples`} tone={(trainingData.supervised_examples || 0) >= 10 ? 'green' : 'orange'} />
       </section>
 
       <section className="llmActions">
@@ -1597,6 +1567,9 @@ function LlmPage() {
         ) : null}
         <Link className="button ghost" href="/llm/reports"><FileText size={16} />Архів LLM synthesis</Link>
         <Link className="button ghost" href="/summary"><BarChart3 size={16} />Summary</Link>
+        <button className="button ghost" disabled={training} onClick={refreshTrainingReport}>
+          <Gauge size={16} />{training ? 'Оновлюю...' : 'Оновити training report'}
+        </button>
         {activeLlmRun ? (
           <button className="button danger" disabled={stopping === activeLlmRun.log_path} onClick={() => stopLlmRun(activeLlmRun)}>
             <Square size={15} />{stopping === activeLlmRun.log_path ? 'Зупиняю...' : 'Зупинити LLM synthesis'}
@@ -1617,6 +1590,75 @@ function LlmPage() {
           </div>
         </div>
       ) : null}
+
+      <section className="llmModelGrid">
+        <section className="panel llmModelPanel">
+          <div className="panelHeader">
+            <h2>LLM Model</h2>
+            <Pill tone={trainingStatus.can_fine_tune_llm ? 'green' : 'orange'}>{modelCard.fine_tune_status || 'unknown'}</Pill>
+          </div>
+          <div className="llmModelFacts">
+            <div><span>Active model</span><strong>{modelCard.active_model || '-'}</strong></div>
+            <div><span>Provider</span><strong>{modelCard.llm_provider || '-'}</strong></div>
+            <div><span>Prediction model</span><strong>{modelCard.prediction_model_version || '-'}</strong></div>
+            <div><span>Ollama / GPU</span><strong>{ollamaBusy ? 'Зайнято' : 'Вільно'}</strong></div>
+          </div>
+          <p className="muted">{modelCard.role || 'LLM model card ще не згенеровано.'}</p>
+        </section>
+
+        <section className="panel llmModelPanel">
+          <div className="panelHeader">
+            <h2>Training Data</h2>
+            <Pill tone={trainingStatus.can_train_supervised ? 'green' : 'orange'}>{trainingStatus.status || 'unknown'}</Pill>
+          </div>
+          <div className="llmTrainingBars">
+            <LlmTrainingBar label="Calibration labels" value={trainingData.supervised_examples || 0} target={trainingData.required_for_calibration || 10} />
+            <LlmTrainingBar label="Fine-tune labels" value={trainingData.supervised_examples || 0} target={trainingData.required_for_fine_tune || 100} />
+          </div>
+          <div className="llmModelFacts compact">
+            <div><span>Decision examples</span><strong>{numberFmt.format(trainingData.decision_examples || 0)}</strong></div>
+            <div><span>Feedback rows</span><strong>{numberFmt.format(trainingData.feedback_rows || 0)}</strong></div>
+            <div><span>LLM reports</span><strong>{numberFmt.format(trainingData.llm_reports || 0)}</strong></div>
+            <div><span>Dataset</span><strong>{artifacts.training_dataset?.exists ? 'Є' : 'Немає'}</strong></div>
+          </div>
+          <p className="muted">{trainingStatus.reason || ''}</p>
+        </section>
+
+        <section className="panel llmModelPanel">
+          <div className="panelHeader">
+            <h2>Evaluation</h2>
+            <Pill tone={evaluation.accuracy == null ? 'orange' : evaluation.accuracy >= 60 ? 'green' : 'red'}>
+              {evaluation.accuracy == null ? 'need labels' : `${evaluation.accuracy}%`}
+            </Pill>
+          </div>
+          <table>
+            <tbody>
+              <tr><td>Labeled examples</td><td>{numberFmt.format(evaluation.labeled_examples || 0)}</td></tr>
+              <tr><td>Accuracy</td><td>{evaluation.accuracy == null ? 'not enough labels' : `${evaluation.accuracy}%`}</td></tr>
+              <tr><td>Median views error</td><td>{evaluation.median_views_error_pct == null ? 'not enough labels' : `${evaluation.median_views_error_pct}%`}</td></tr>
+              <tr><td>Predicted labels</td><td>{formatCounts(evaluation.predicted_label_counts)}</td></tr>
+              <tr><td>Actual labels</td><td>{formatCounts(evaluation.actual_label_counts)}</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section className="panel llmModelPanel">
+          <div className="panelHeader">
+            <h2>Improvement Loop</h2>
+            <Pill tone="blue">{improvementPlan.length} actions</Pill>
+          </div>
+          <div className="llmImprovementList">
+            {improvementPlan.map((item, idx) => (
+              <article key={`${item.title}-${idx}`}>
+                <Pill tone={item.priority === 'high' ? 'red' : item.priority === 'medium' ? 'orange' : 'blue'}>{item.priority}</Pill>
+                <strong>{item.title}</strong>
+                <p>{item.detail}</p>
+              </article>
+            ))}
+            {!improvementPlan.length ? <p className="muted">Improvement plan з'явиться після генерації model report.</p> : null}
+          </div>
+        </section>
+      </section>
 
       <section className="layout">
         <section className="panel">
@@ -1726,7 +1768,7 @@ function LlmReportsPage() {
   );
 }
 
-function TrendRadarPage() {
+function LegacyTrendRadarPage() {
   const [days, setDays] = useState(30);
   const [tab, setTab] = useState('topics');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -1908,7 +1950,7 @@ function CategoryTrendGrid({ rows }) {
   );
 }
 
-function OpportunityBoardPage() {
+function LegacyOpportunityBoardPage() {
   const [days, setDays] = useState(30);
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('all');
@@ -2127,8 +2169,9 @@ function HashtagGroup({ title, rows }) {
 
 const defaultIdeaText = '';
 
-function IdeaLabPage() {
-  const [idea, setIdea] = useState(defaultIdeaText);
+function LegacyIdeaLabPage({ route }) {
+  const params = new URLSearchParams(route?.search || '');
+  const [idea, setIdea] = useState(params.get('idea') || defaultIdeaText);
   const [days, setDays] = useState(90);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
@@ -2725,7 +2768,7 @@ function QuotaCostTable({ rows, nameKey }) {
   );
 }
 
-function SummaryPage() {
+function LegacySummaryPage() {
   const [days, setDays] = useState(30);
   const [query, setQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -3666,6 +3709,8 @@ function ArtifactTable({ artifacts }) {
   const rows = [
     ['Decision summary', artifacts.deterministic],
     ['LLM synthesis', artifacts.llm],
+    ['LLM model report', artifacts.model_report],
+    ['Training dataset', artifacts.training_dataset],
     ['Market brief', artifacts.market],
     ['Snapshot', artifacts.snapshot],
   ];
@@ -3709,9 +3754,13 @@ function App() {
   const route = useRoute();
   const { data: quotaData } = useQuota();
   const [toast, setToast] = useState(null);
+  const [theme, setTheme] = useState(getInitialTheme);
   const showToast = useCallback((text, tone = 'green') => {
     setToast({ text, tone });
     setTimeout(() => setToast(null), 4000);
+  }, []);
+  const toggleTheme = useCallback(() => {
+    setTheme((current) => (current === 'dark' ? 'light' : 'dark'));
   }, []);
   const quotaCtxValue = quotaData?.summary
     ? (() => {
@@ -3726,6 +3775,16 @@ function App() {
     : null;
 
   useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    try {
+      window.localStorage.setItem('dashboard-theme', theme);
+    } catch {
+      // Ignore storage failures; the UI can still switch for this session.
+    }
+  }, [theme]);
+
+  useEffect(() => {
     if (!route.hash) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -3736,25 +3795,28 @@ function App() {
   }, [route.path, route.hash]);
 
   let page;
-  if (route.path === '/jobs') page = <JobsPage />;
-  else if (route.path === '/trends') page = <TrendRadarPage />;
-  else if (route.path === '/idea-lab') page = <IdeaLabPage />;
-  else if (route.path === '/opportunities' || route.path === '/ideas') page = <OpportunityBoardPage />;
-  else if (route.path === '/brief') page = <ContentBriefPage route={route} />;
-  else if (route.path === '/analytics' || route.path === '/summary') page = <SummaryPage />;
+  if (route.path === '/jobs') page = <Shell active="jobs"><DataSyncPage /></Shell>;
+  else if (route.path === '/trends') page = <Shell active="trends"><TrendRadarPage /></Shell>;
+  else if (route.path === '/idea-lab') page = <Shell active="ideaLab"><IdeaLabPage route={route} /></Shell>;
+  else if (route.path === '/opportunities' || route.path === '/ideas') page = <Shell active="opportunities"><OpportunitiesPage /></Shell>;
+  else if (route.path === '/brief') page = <Shell active="brief"><BriefPage route={route} /></Shell>;
+  else if (route.path === '/analytics' || route.path === '/summary') page = <Shell active="analytics"><SummaryPage /></Shell>;
   else if (route.path === '/data-health') page = <DataHealthPage />;
   else if (route.path === '/technical') page = <TechnicalPage />;
   else if (route.path === '/reports') page = <ReportsPage route={route} />;
   else if (route.path === '/llm/reports') page = <LlmReportsPage />;
   else if (route.path === '/llm') page = <LlmPage />;
+  else if (route.path === '/') page = <Shell active="today"><TodayPage /></Shell>;
   else page = <DashboardPage />;
 
   return (
     <ToastContext.Provider value={showToast}>
-      <QuotaContext.Provider value={quotaCtxValue}>
-        {page}
-        <ToastMessage toast={toast} />
-      </QuotaContext.Provider>
+      <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <QuotaContext.Provider value={quotaCtxValue}>
+          {page}
+          <ToastMessage toast={toast} />
+        </QuotaContext.Provider>
+      </ThemeContext.Provider>
     </ToastContext.Provider>
   );
 }

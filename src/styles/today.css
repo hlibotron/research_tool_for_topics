@@ -1,0 +1,854 @@
+/* ── Today Page Layout ─────────────────────────────────────────────────────── */
+
+.todayPage {
+  padding: 28px 32px 48px;
+  max-width: 1280px;
+  display: grid;
+  gap: 32px;
+}
+
+.todayPageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.todayPageHeader h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: var(--text);
+}
+
+.todaySubtitle {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0;
+  max-width: 560px;
+  line-height: 1.5;
+}
+
+/* ── Hero ──────────────────────────────────────────────────────────────────── */
+
+.todayHero {
+  background: linear-gradient(135deg, rgba(9,23,37,.95) 0%, rgba(13,30,50,.98) 100%);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.todayHero > :first-child {
+  padding: 28px 32px 24px;
+}
+
+.todayHero .todayMetricStrip {
+  border-radius: 0;
+  border: none;
+  border-top: 1px solid var(--line);
+  background: rgba(5, 16, 27, 0.6);
+}
+
+.todayHeroInner {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: start;
+}
+
+.todayHeroLeft {
+  display: grid;
+  gap: 14px;
+}
+
+.todayHeroRight {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.todayHeroMain {
+  display: grid;
+  gap: 16px;
+}
+
+.todayHeroBadgeRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.todayHeroTitle {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0;
+  color: var(--text);
+}
+
+.todayHeroMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ── Verdict Button ────────────────────────────────────────────────────────── */
+
+.todayVerdictBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+}
+
+.todayVerdictgreen {
+  background: rgba(54, 193, 119, 0.15);
+  color: var(--green);
+  border: 1px solid rgba(54, 193, 119, 0.3);
+}
+
+.todayVerdictblue {
+  background: rgba(47, 125, 246, 0.15);
+  color: var(--blue);
+  border: 1px solid rgba(47, 125, 246, 0.3);
+}
+
+.todayVerdictred {
+  background: rgba(231, 93, 93, 0.15);
+  color: var(--red);
+  border: 1px solid rgba(231, 93, 93, 0.3);
+}
+
+.todayVerdictwatch,
+.todayverdictnetural,
+.todayVerdictadapt {
+  background: rgba(142, 163, 184, 0.12);
+  color: var(--muted);
+  border: 1px solid rgba(142, 163, 184, 0.2);
+}
+
+.todayHeroTime {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── Thumbnail Placeholder ─────────────────────────────────────────────────── */
+
+.todayThumbnail {
+  width: 220px;
+  height: 124px;
+  background: linear-gradient(135deg, rgba(18,40,65,.9), rgba(9,23,37,.95));
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.todayThumbnailPlay {
+  width: 42px;
+  height: 42px;
+  background: rgba(47, 125, 246, 0.85);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(47, 125, 246, 0.4);
+}
+
+.todayHookBox {
+  background: rgba(47, 125, 246, 0.07);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  max-width: 220px;
+}
+
+.todayHookLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--blue);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.todayHookText {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.todayHeroActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ── Badges ────────────────────────────────────────────────────────────────── */
+
+.todayBadge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+.todayBadgegreen {
+  background: rgba(54, 193, 119, 0.15);
+  color: var(--green);
+  border: 1px solid rgba(54, 193, 119, 0.3);
+}
+
+.todayBadgeorange {
+  background: rgba(245, 158, 46, 0.15);
+  color: var(--orange);
+  border: 1px solid rgba(245, 158, 46, 0.3);
+}
+
+.todayBadgered {
+  background: rgba(231, 93, 93, 0.15);
+  color: var(--red);
+  border: 1px solid rgba(231, 93, 93, 0.3);
+}
+
+.todayBadgeblue {
+  background: rgba(47, 125, 246, 0.15);
+  color: var(--blue);
+  border: 1px solid rgba(47, 125, 246, 0.3);
+}
+
+.todayBadgeneutral {
+  background: rgba(142, 163, 184, 0.12);
+  color: var(--muted);
+  border: 1px solid rgba(142, 163, 184, 0.2);
+}
+
+/* ── Metric Strip ──────────────────────────────────────────────────────────── */
+
+.todayMetricStrip {
+  display: flex;
+  gap: 0;
+  background: rgba(9, 23, 37, 0.7);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.todayMetricItem {
+  flex: 1;
+  padding: 14px 16px;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.todayMetricItem:last-child {
+  border-right: none;
+}
+
+.todayMetricBody {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+.todayMetricLabel {
+  font-size: 11px;
+  color: var(--muted);
+  display: block;
+  letter-spacing: 0.02em;
+}
+
+.todayMetricValue {
+  font-size: 20px;
+  font-weight: 700;
+  display: block;
+}
+
+.todayMetricSub {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 2px 0 0;
+  line-height: 1.3;
+}
+
+.todayMetricValue.green { color: var(--green); }
+.todayMetricValue.orange { color: var(--orange); }
+.todayMetricValue.red { color: var(--red); }
+.todayMetricValue.blue { color: var(--blue); }
+.todayMetricValue.neutral { color: var(--text); }
+
+/* ── Circular Score (SVG gauge) ────────────────────────────────────────────── */
+
+.todayCircularScore {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+.todayCircularLabel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.todayCircularLabel strong {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.todayCircularLabel span {
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ── Dot Value ─────────────────────────────────────────────────────────────── */
+
+.todayDotValue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.todayDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.todayDotgreen { background: var(--green); }
+.todayDotorange { background: var(--orange); }
+.todayDotred { background: var(--red); }
+.todayDotneutral { background: var(--muted); }
+
+/* ── Why Recommended ───────────────────────────────────────────────────────── */
+
+.todayWhySection {
+  background: rgba(9, 23, 37, 0.6);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+/* ── Hero Action Buttons ───────────────────────────────────────────────────── */
+
+.todayHeroActionBtns {
+  display: grid;
+  gap: 10px;
+}
+
+.todayBriefBtn {
+  background: var(--green);
+  color: #fff !important;
+  border-color: var(--green);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 13px 20px;
+  justify-content: center;
+  gap: 8px;
+}
+
+.todayBriefBtn:hover { opacity: 0.88; }
+
+.todayIdeaCheckBtn {
+  font-size: 14px;
+  justify-content: center;
+  padding: 12px 20px;
+  gap: 8px;
+}
+
+.todaySavePlanBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 10px 16px;
+  cursor: pointer;
+  width: 100%;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.todaySavePlanBtn:hover {
+  border-color: var(--blue);
+  color: var(--text);
+}
+
+.todayWhyList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.todayWhyItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.todayWhyCheck {
+  color: var(--green);
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Section Titles ────────────────────────────────────────────────────────── */
+
+.todaySectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--text);
+}
+
+/* ── Two-column layout ─────────────────────────────────────────────────────── */
+
+.todayTwoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* ── Secondary Opportunities ───────────────────────────────────────────────── */
+
+.todaySecondarySection {
+  display: grid;
+  gap: 16px;
+}
+
+.todaySecondaryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.todaySecondaryHeader .todaySectionTitle {
+  margin: 0;
+}
+
+.todayLinkMore {
+  font-size: 13px;
+  color: var(--blue);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.todayLinkMore:hover { text-decoration: underline; }
+
+.todaySecondaryList {
+  display: grid;
+  gap: 10px;
+}
+
+.todaySecondaryCard {
+  background: rgba(9, 23, 37, 0.7);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.todaySecondaryRank {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(47, 125, 246, 0.15);
+  border: 1px solid rgba(47, 125, 246, 0.3);
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.todaySecondaryBody {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.todaySecondaryTitleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.todaySecondaryScore {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.todaySecondaryScore span {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.todaySecondaryTitle {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.todaySecondaryMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.todaySecondaryReason {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.todaySecondaryBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.todaySecondaryBtn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.todayMoreOppBtn {
+  text-align: center;
+  justify-content: center;
+  font-size: 13px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* ── Evidence Panel ────────────────────────────────────────────────────────── */
+
+.todayEvidencePanel {
+  background: rgba(9, 23, 37, 0.7);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px 28px;
+  display: grid;
+  gap: 20px;
+}
+
+.todayEvidenceGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.todayEvidenceBlock {
+  display: grid;
+  gap: 6px;
+}
+
+.todayEvidenceBlockTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.todayBigStat {
+  font-size: 28px;
+  font-weight: 700;
+  display: block;
+}
+
+.todayBigStat.green { color: var(--green); }
+.todayBigStat.orange { color: var(--orange); }
+.todayBigStat.red { color: var(--red); }
+.todayBigStat.blue { color: var(--blue); }
+.todayBigStat.neutral { color: var(--text); }
+
+.todayEvidenceChartRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.todayEvidenceFooterRow {
+  display: flex;
+  gap: 20px;
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  flex-wrap: wrap;
+}
+
+/* ── Quick Idea Check ──────────────────────────────────────────────────────── */
+
+.todayIdeaCheck {
+  background: rgba(9, 23, 37, 0.7);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 28px 32px;
+  display: grid;
+  gap: 12px;
+}
+
+.todayIdeaCheckIcon {
+  font-size: 22px;
+}
+
+.todayIdeaForm {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.todayIdeaInput {
+  flex: 1;
+  background: rgba(2, 10, 19, 0.8);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-size: 14px;
+  transition: border-color 0.15s;
+}
+
+.todayIdeaInput:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+.todayIdeaInput.error {
+  border-color: var(--red);
+}
+
+.todayIdeaInput::placeholder {
+  color: var(--muted);
+}
+
+.todayIdeaBtn {
+  flex-shrink: 0;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+}
+
+.todayIdeaBtn:hover { opacity: 0.88; }
+
+.todayIdeaError {
+  font-size: 12px;
+  color: var(--red);
+  margin: 0;
+}
+
+/* ── Niche Changes ─────────────────────────────────────────────────────────── */
+
+.todayNicheSection {
+  display: grid;
+  gap: 16px;
+}
+
+.todayNicheGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.todayNicheCard {
+  background: rgba(9, 23, 37, 0.7);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: grid;
+  gap: 14px;
+}
+
+.todayNicheCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.todayNichegreen .todayNicheCardHeader { color: var(--green); }
+.todayNichered .todayNicheCardHeader { color: var(--red); }
+
+.todayNicheList {
+  display: grid;
+  gap: 8px;
+}
+
+.todayNicheItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.todayNicheTag {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.todayNicheChange {
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.todayNicheChange.green { color: var(--green); }
+.todayNicheChange.red { color: var(--red); }
+
+.todayNicheLink {
+  font-size: 12px;
+  color: var(--blue);
+  text-decoration: none;
+  margin-top: 4px;
+  display: inline-block;
+}
+
+.todayNicheLink:hover { text-decoration: underline; }
+
+/* ── Data Evidence Footer ──────────────────────────────────────────────────── */
+
+.todayDataFooter {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+/* ── Skeleton loading ──────────────────────────────────────────────────────── */
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(27, 49, 72, 0.6) 25%, rgba(27, 49, 72, 0.9) 50%, rgba(27, 49, 72, 0.6) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.todaySkeleton {
+  padding: 28px 32px;
+  display: grid;
+  gap: 24px;
+}
+
+.todayHeroSkel {
+  height: 200px;
+  border-radius: 16px;
+}
+
+.todayMetricStripSkel {
+  display: flex;
+  gap: 12px;
+}
+
+.todayMetricSkel {
+  flex: 1;
+  height: 72px;
+}
+
+.todaySectionSkel {
+  height: 160px;
+}
+
+/* ── Error / Empty States ──────────────────────────────────────────────────── */
+
+.todayError,
+.todayEmpty {
+  padding: 48px 32px;
+  display: grid;
+  gap: 16px;
+  justify-items: start;
+}
+
+.todayEmpty h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.todayEmpty p {
+  color: var(--muted);
+  margin: 0;
+  max-width: 480px;
+  line-height: 1.55;
+}
+
+/* ── Shared helpers ────────────────────────────────────────────────────────── */
+
+.todayMuted {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0;
+}
