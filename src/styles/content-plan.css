@@ -1,0 +1,1217 @@
+/* ── Content plan page ────────────────────────────────────────────────────── */
+
+.cpPage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 22px 28px;
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+.cpLoading { padding: 80px 40px; color: var(--muted); text-align: center; }
+
+.cpEmptyState {
+  text-align: center;
+  padding: 24px 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.cpEmptyState.small { padding: 12px 8px; }
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+
+.cpHeader {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.cpHeaderTitle h1 { font-size: 22px; font-weight: 700; color: var(--text); margin: 0; }
+.cpHeaderTitle p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+
+.cpHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cpGhostBtn {
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.cpGhostBtn:hover { border-color: rgba(108, 141, 245, 0.4); }
+
+.cpPrimaryBtn {
+  background: linear-gradient(135deg, #5563dd, #6c8df5);
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 1px 4px rgba(108, 141, 245, 0.3);
+}
+
+.cpPrimaryBtn:hover { filter: brightness(1.05); }
+.cpPrimaryBtn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+.cpIconBtn {
+  position: relative;
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.cpIconDot {
+  position: absolute;
+  top: 5px;
+  right: 7px;
+  width: 6px;
+  height: 6px;
+  background: #e75d5d;
+  border-radius: 50%;
+}
+
+.cpAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6c8df5, #a06bd1);
+}
+
+/* ── Filter bar ───────────────────────────────────────────────────────────── */
+
+.cpFilterBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.cpFilterPill {
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 130px;
+}
+
+.cpFilterPillLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.cpFilterPillSelect {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cpFilterPillSelect select {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  padding-right: 16px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.cpFilterPillSelect svg {
+  position: absolute;
+  right: 0;
+  pointer-events: none;
+  color: var(--muted);
+}
+
+.cpAdvancedFilters {
+  margin-left: auto;
+  background: linear-gradient(135deg, #f0f3ff, #e6ecff);
+  color: #4d63d6;
+  border: 1px solid rgba(108, 141, 245, 0.3);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── KPI cards ────────────────────────────────────────────────────────────── */
+
+.cpKpiRow {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.cpKpiCard {
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.cpKpiCard:hover { border-color: rgba(108, 141, 245, 0.35); transform: translateY(-1px); }
+
+.cpKpiHead { display: flex; justify-content: space-between; align-items: center; }
+.cpKpiLabel { font-size: 12px; color: var(--muted); }
+
+.cpKpiIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.cpKpiIcon.cyan { background: linear-gradient(135deg, #4ea1ff, #4cb2ff); }
+.cpKpiIcon.green { background: linear-gradient(135deg, #4cb277, #36c177); }
+.cpKpiIcon.orange { background: linear-gradient(135deg, #f5a623, #f59e2e); }
+.cpKpiIcon.red { background: linear-gradient(135deg, #e75d5d, #d63939); }
+.cpKpiIcon.blue { background: linear-gradient(135deg, #6c8df5, #5563dd); }
+.cpKpiIcon.purple { background: linear-gradient(135deg, #a06bd1, #9b6cff); }
+
+.cpKpiValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.cpKpiDelta {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1d8a4f;
+  background: rgba(54, 193, 119, 0.12);
+  padding: 1px 6px;
+  border-radius: 5px;
+}
+
+.cpKpiSub { font-size: 11px; color: var(--muted); }
+
+/* ── Section heading ──────────────────────────────────────────────────────── */
+
+.cpSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cpSectionHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cpSectionHead h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cpSectionHead svg { color: var(--muted); }
+
+.cpSectionLink {
+  background: none;
+  border: 0;
+  font-size: 12px;
+  color: #5563dd;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.cpBoardToolbar {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.cpBoardToolPill {
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.cpBoardToolPill.active { color: var(--text); border-color: rgba(108, 141, 245, 0.3); background: rgba(108, 141, 245, 0.06); }
+
+/* ── Recommendations scroller ─────────────────────────────────────────────── */
+
+.cpRecScrollerWrap {
+  position: relative;
+}
+
+.cpRecScroller {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.cpRecScroller::-webkit-scrollbar { height: 6px; }
+.cpRecScroller::-webkit-scrollbar-thumb { background: rgba(108, 141, 245, 0.18); border-radius: 4px; }
+
+.cpScrollNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+  z-index: 5;
+}
+
+.cpScrollNav.left { left: -10px; }
+.cpScrollNav.right { right: -10px; }
+.cpScrollNav.board { top: 38px; }
+
+.cpRecCard {
+  flex: 0 0 218px;
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+
+.cpRecBanner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.cpRecBanner.red { background: rgba(231, 93, 93, 0.12); color: #c53030; }
+.cpRecBanner.orange { background: rgba(245, 158, 46, 0.15); color: #c5780f; }
+.cpRecBanner.green { background: rgba(54, 193, 119, 0.15); color: #1d8a4f; }
+
+.cpDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.cpRecCard h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cpRecBadges { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.cpBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.cpBadge.format { background: rgba(108, 141, 245, 0.12); color: #4d63d6; }
+.cpBadge.source { background: rgba(155, 108, 255, 0.12); color: #7a4dd0; }
+
+.cpRecDeadline {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.cpRecDeadline.red {
+  color: #c53030;
+  font-weight: 500;
+}
+
+.cpRecMeta { display: flex; flex-direction: column; gap: 4px; }
+
+.cpRecMetaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.cpRecMetaRow strong { color: var(--text); }
+
+.cpDifficulty {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.cpDifficulty.easy { color: #1d8a4f; }
+.cpDifficulty.medium { color: #c5780f; }
+.cpDifficulty.hard { color: #c53030; }
+
+.cpDifficulty.inline { font-size: 11px; }
+
+.cpRecActions { display: flex; gap: 6px; margin-top: 2px; }
+
+.cpRecActionBtn {
+  flex: 1;
+  background: rgba(108, 141, 245, 0.06);
+  color: #4d63d6;
+  border: 0;
+  border-radius: 7px;
+  padding: 7px 0;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.cpRecActionBtn:hover { background: rgba(108, 141, 245, 0.12); }
+
+.cpRecActionIcon {
+  background: rgba(108, 141, 245, 0.06);
+  color: var(--muted);
+  border: 0;
+  border-radius: 7px;
+  padding: 7px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cpRecActionIcon:hover { color: #4d63d6; }
+
+/* ── Production board ─────────────────────────────────────────────────────── */
+
+.cpBoardWrap {
+  position: relative;
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.cpBoardScroller {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  padding-bottom: 6px;
+  scroll-padding: 8px;
+}
+
+.cpBoardScroller::-webkit-scrollbar { height: 8px; }
+.cpBoardScroller::-webkit-scrollbar-thumb { background: rgba(108, 141, 245, 0.18); border-radius: 4px; }
+
+.cpBoardColumn {
+  flex: 0 0 240px;
+  background: rgba(108, 141, 245, 0.04);
+  border-radius: 10px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 320px;
+  transition: background 0.15s;
+}
+
+.cpBoardColumn.dropTarget {
+  background: rgba(108, 141, 245, 0.14);
+  outline: 2px dashed rgba(108, 141, 245, 0.45);
+  outline-offset: -3px;
+}
+
+.cpBoardColHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cpBoardColTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cpBoardColCount {
+  background: rgba(108, 141, 245, 0.12);
+  color: #4d63d6;
+  border-radius: 8px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.cpBoardColAddIcon {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 2px 4px;
+}
+
+.cpBoardColAddIcon:hover { color: #4d63d6; background: rgba(108, 141, 245, 0.1); }
+
+.cpBoardColList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.cpBoardCard {
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.cpBoardCard.compact { padding: 6px 10px; gap: 4px; }
+
+.cpBoardCard:active { cursor: grabbing; }
+.cpBoardCard:hover { border-color: rgba(108, 141, 245, 0.35); }
+
+.cpBoardCard h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cpBoardCard.compact h4 { -webkit-line-clamp: 1; }
+
+.cpBoardBadges {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.cpBoardMetaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cpPriorityChip {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.cpPriorityChip.red { background: rgba(231, 93, 93, 0.12); color: #c53030; }
+.cpPriorityChip.orange { background: rgba(245, 158, 46, 0.15); color: #c5780f; }
+.cpPriorityChip.green { background: rgba(54, 193, 119, 0.15); color: #1d8a4f; }
+
+.cpChecklistProgress {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #1d8a4f;
+  font-weight: 500;
+}
+
+.cpBoardAddRow {
+  background: transparent;
+  border: 1px dashed rgba(108, 141, 245, 0.3);
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.cpBoardAddRow:hover { color: #4d63d6; border-color: rgba(108, 141, 245, 0.5); }
+
+/* ── Bottom grid ──────────────────────────────────────────────────────────── */
+
+.cpBottomGrid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 14px;
+}
+
+.cpBottomColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cpCard {
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+
+.cpCardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cpCardHead h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Calendar ─────────────────────────────────────────────────────────────── */
+
+.cpCalendarTabs {
+  display: inline-flex;
+  background: rgba(108, 141, 245, 0.06);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+  width: fit-content;
+}
+
+.cpCalendarTabs button {
+  background: transparent;
+  border: 0;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.cpCalendarTabs button.active { background: #5563dd; color: #fff; font-weight: 600; }
+
+.cpCalendarHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cpCalendarRange {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  margin: 0 8px;
+  flex: 1;
+  text-align: center;
+}
+
+.cpCalNavBtn, .cpCalTodayBtn {
+  background: rgba(108, 141, 245, 0.06);
+  border: 0;
+  border-radius: 6px;
+  color: var(--muted);
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cpCalTodayBtn { color: #4d63d6; font-weight: 600; }
+
+.cpCalendarGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cpCalendarRowLabels, .cpCalendarRow {
+  display: grid;
+  grid-template-columns: 80px repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.cpCalendarRowLabels { border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: 4px; }
+
+.cpCalDay {
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 4px 0;
+}
+
+.cpCalDay.today { color: #fff; background: #5563dd; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+.cpCalDay.today span { font-size: 10px; }
+
+.cpCalendarRowLabel {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 6px 4px;
+  align-self: center;
+}
+
+.cpCalendarCell {
+  min-height: 56px;
+  background: rgba(108, 141, 245, 0.03);
+  border-radius: 6px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cpCalendarChip {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 6px;
+  border-radius: 5px;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.cpCalendarChip.green { background: rgba(54, 193, 119, 0.16); color: #1d8a4f; }
+.cpCalendarChip.blue { background: rgba(108, 141, 245, 0.16); color: #4d63d6; }
+.cpCalendarChip.purple { background: rgba(155, 108, 255, 0.16); color: #7a4dd0; }
+.cpCalendarChip.red { background: rgba(231, 93, 93, 0.16); color: #c53030; }
+
+.cpCalendarChipTitle {
+  font-weight: 500;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.cpCalendarChipTime { font-size: 9px; opacity: 0.8; }
+
+.cpCalendarLegend {
+  display: flex;
+  gap: 14px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.cpCalendarLegend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.cpDot.green { background: #36c177; }
+.cpDot.blue { background: #5563dd; }
+.cpDot.purple { background: #9b6cff; }
+.cpDot.red { background: #e75d5d; }
+
+/* ── Backlog ──────────────────────────────────────────────────────────────── */
+
+.cpBacklogList, .cpPublishedList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+
+.cpBacklogRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--line);
+}
+
+.cpBacklogRow:hover { background: rgba(108, 141, 245, 0.04); }
+
+.cpBacklogTitle { font-size: 12px; color: var(--text); font-weight: 500; }
+.cpBacklogBadges { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* ── Published ────────────────────────────────────────────────────────────── */
+
+.cpPublishedRow {
+  display: flex;
+  gap: 10px;
+  padding: 10px 4px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--line);
+}
+
+.cpPublishedRow:hover { background: rgba(108, 141, 245, 0.04); }
+.cpPublishedRow:last-child { border-bottom: 0; }
+
+.cpPublishedThumb {
+  width: 72px;
+  height: 48px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #6c8df5, #a06bd1);
+  flex-shrink: 0;
+}
+
+.cpPublishedBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cpPublishedBody strong { font-size: 12px; color: var(--text); }
+.cpPublishedMeta { font-size: 10px; color: var(--muted); }
+
+.cpPublishedStats {
+  display: flex;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.cpPublishedStats div { display: flex; flex-direction: column; gap: 1px; }
+.cpPublishedStats strong { font-size: 13px; color: var(--text); }
+.cpPublishedStats span { font-size: 9px; color: var(--muted); }
+
+/* ── Disclosure ───────────────────────────────────────────────────────────── */
+
+.cpDisclosure {
+  background: rgba(108, 141, 245, 0.06);
+  border: 1px solid rgba(108, 141, 245, 0.18);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.cpDisclosure svg { color: #5563dd; }
+
+/* ── Drawer ───────────────────────────────────────────────────────────────── */
+
+.cpDrawerOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 10, 19, 0.45);
+  display: flex;
+  z-index: 100;
+}
+
+.cpDrawer {
+  background: var(--card-bg, #fff);
+  width: 480px;
+  margin-left: auto;
+  height: 100%;
+  border-left: 1px solid var(--line);
+  padding: 18px 22px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-shadow: -12px 0 36px rgba(2, 10, 19, 0.25);
+}
+
+.cpDrawer header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.cpDrawer header h3 { font-size: 15px; color: var(--text); margin: 0; }
+.cpDrawer header small { font-size: 12px; color: var(--muted); }
+.cpDrawer header button {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.cpDrawerMeta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  background: rgba(108, 141, 245, 0.05);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.cpDrawerMeta div { display: flex; flex-direction: column; gap: 2px; }
+.cpDrawerMeta span { font-size: 10px; color: var(--muted); }
+.cpDrawerMeta strong { font-size: 12px; color: var(--text); }
+
+.cpDrawer h4 { font-size: 13px; color: var(--text); margin: 0 0 8px; }
+
+.cpChecklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cpChecklist li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.cpChecklist li.done { color: var(--muted); text-decoration: line-through; }
+
+.cpStatusPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cpStatusOption {
+  background: rgba(108, 141, 245, 0.06);
+  border: 0;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.cpStatusOption.active { background: #5563dd; color: #fff; font-weight: 600; }
+
+/* ── Modal ────────────────────────────────────────────────────────────────── */
+
+.cpModal {
+  margin: auto;
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 22px;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 12px 40px rgba(2, 10, 19, 0.3);
+}
+
+.cpModal header { display: flex; justify-content: space-between; align-items: center; }
+.cpModal header h3 { margin: 0; font-size: 15px; color: var(--text); }
+.cpModal header button { background: none; border: 0; color: var(--muted); cursor: pointer; }
+
+.cpForm { display: flex; flex-direction: column; gap: 10px; }
+.cpForm label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--muted); }
+.cpForm input[type="text"],
+.cpForm input[type="date"],
+.cpForm input[type="number"],
+.cpForm input:not([type]),
+.cpForm select,
+.cpForm textarea {
+  background: rgba(108, 141, 245, 0.05);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.cpForm textarea { resize: vertical; min-height: 60px; font-family: inherit; }
+
+.cpFormRow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.cpCheckbox { flex-direction: row !important; align-items: center; gap: 8px !important; color: var(--text) !important; font-size: 12px !important; }
+
+.cpFormHint { font-size: 12px; color: var(--muted); margin: 0; }
+
+.cpModal footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cpImportList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; }
+
+.cpImportList li {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.cpImportList li.picked { border-color: rgba(108, 141, 245, 0.5); background: rgba(108, 141, 245, 0.05); }
+.cpImportList li > div { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.cpImportList li strong { font-size: 12px; color: var(--text); }
+.cpImportList li small { font-size: 10px; color: var(--muted); }
+
+/* ── Confirm-from-sources modal ───────────────────────────────────────────── */
+
+.cpConfirmModal {
+  max-width: 640px;
+}
+
+.cpConfirmTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 6px;
+}
+
+.cpConfirmTab {
+  background: transparent;
+  border: 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.cpConfirmTab.active {
+  background: rgba(108, 141, 245, 0.12);
+  color: #4d63d6;
+}
+
+.cpConfirmTabCount {
+  background: rgba(108, 141, 245, 0.16);
+  color: #4d63d6;
+  border-radius: 8px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.cpConfirmList li.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.cpCandidateBody {
+  display: flex !important;
+  flex-direction: column;
+  gap: 4px !important;
+}
+
+.cpCandidateBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.cpBadge.already {
+  background: rgba(54, 193, 119, 0.12);
+  color: #1d8a4f;
+}
+
+.cpConfirmTarget {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(108, 141, 245, 0.05);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.cpConfirmStatusPicker {
+  display: inline-flex;
+  gap: 4px;
+}
+
+/* ── Empty plan hero ──────────────────────────────────────────────────────── */
+
+.cpEmptyHero {
+  background: var(--card-bg, #fff);
+  border: 1px dashed rgba(108, 141, 245, 0.35);
+  border-radius: 14px;
+  padding: 30px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+
+.cpEmptyHeroIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(108, 141, 245, 0.18), rgba(155, 108, 255, 0.18));
+  color: #5563dd;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cpEmptyHero h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cpEmptyHero p {
+  margin: 0;
+  max-width: 560px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.cpEmptyHeroActions {
+  display: inline-flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.cpEmptyHeroHints {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 6px 18px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.cpEmptyHeroHints li {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.cpEmptyHeroHints strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ── Dark mode polish ─────────────────────────────────────────────────────── */
+
+[data-theme="dark"] .cpEmptyHero,
+[data-theme="dark"] .cpFilterPill,
+[data-theme="dark"] .cpKpiCard,
+[data-theme="dark"] .cpRecCard,
+[data-theme="dark"] .cpBoardWrap,
+[data-theme="dark"] .cpBoardCard,
+[data-theme="dark"] .cpCard,
+[data-theme="dark"] .cpDrawer,
+[data-theme="dark"] .cpModal,
+[data-theme="dark"] .cpIconBtn,
+[data-theme="dark"] .cpGhostBtn {
+  background: linear-gradient(145deg, rgba(13, 31, 49, 0.94), rgba(5, 16, 27, 0.94));
+}
+
+[data-theme="dark"] .cpFilterPillSelect select,
+[data-theme="dark"] .cpForm input,
+[data-theme="dark"] .cpForm select,
+[data-theme="dark"] .cpForm textarea {
+  background: rgba(108, 141, 245, 0.08);
+  color: var(--text);
+}
+
+@media (max-width: 1280px) {
+  .cpKpiRow { grid-template-columns: repeat(3, 1fr); }
+  .cpBottomGrid { grid-template-columns: 1fr; }
+}

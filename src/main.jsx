@@ -30,6 +30,7 @@ import {
   TrendingDown,
   TrendingUp,
   User,
+  Users,
   Youtube,
   Zap,
 } from 'lucide-react';
@@ -44,6 +45,8 @@ const SummaryPage = lazy(() => import('./pages/SummaryPage.jsx'));
 const BriefPage = lazy(() => import('./pages/BriefPage.jsx'));
 const DataSyncPage = lazy(() => import('./pages/DataSyncPage.jsx'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'));
+const CompetitorsPage = lazy(() => import('./pages/CompetitorsPage.jsx'));
+const ContentPlanPage = lazy(() => import('./pages/ContentPlanPage.jsx'));
 import './styles/theme.css';
 
 const reportNumberFmt = new Intl.NumberFormat('en-US', {
@@ -174,9 +177,11 @@ function Shell({ active, children, quota: quotaProp }) {
         <nav className="nav">
           <Link className={active === 'today' || active === 'dashboard' ? 'active' : ''} href="/"><Home size={18} />Сьогодні</Link>
           <Link className={active === 'opportunities' ? 'active' : ''} href="/opportunities"><Star size={18} />Можливості</Link>
+          <Link className={active === 'contentPlan' ? 'active' : ''} href="/content-plan"><ClipboardList size={18} />План контенту</Link>
           <Link className={active === 'ideaLab' ? 'active' : ''} href="/idea-lab"><Lightbulb size={18} />Idea Lab</Link>
           <Link className={active === 'trends' ? 'active' : ''} href="/trends"><TrendingUp size={18} />Trend Radar</Link>
           <Link className={active === 'analytics' || active === 'summary' ? 'active' : ''} href="/summary"><BarChart3 size={18} />Summary</Link>
+          <Link className={active === 'competitors' ? 'active' : ''} href="/competitors"><Users size={18} />Конкуренти</Link>
           <Link className={active === 'brief' ? 'active' : ''} href="/brief"><FileText size={18} />Брифи</Link>
           <div className="navDivider" />
           <Link className={active === 'dataHealth' ? 'active' : ''} href="/data-health"><Gauge size={14} style={{ opacity: 0.6 }} />Data Health</Link>
@@ -3809,6 +3814,8 @@ function App() {
   else if (route.path === '/llm/reports') page = <LlmReportsPage />;
   else if (route.path === '/llm') page = <LlmPage />;
   else if (route.path === '/settings') page = <Shell active="settings"><SettingsPage /></Shell>;
+  else if (route.path === '/competitors') page = <Shell active="competitors"><CompetitorsPage /></Shell>;
+  else if (route.path === '/content-plan') page = <Shell active="contentPlan"><ContentPlanPage /></Shell>;
   else if (route.path === '/') page = <Shell active="today"><TodayPage /></Shell>;
   else page = <DashboardPage />;
 

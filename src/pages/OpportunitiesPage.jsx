@@ -1,13 +1,20 @@
 import React, { useState, useMemo } from 'react';
 import { RefreshCw, Sparkles, ChevronDown, ChevronUp, Brain, AlertTriangle, BarChart2 } from 'lucide-react';
-import { usePolling, api } from '../lib/shared.jsx';
-import OpportunityStats from '../components/opportunities/OpportunityStats.jsx';
-import OpportunityTabs, { filterByTab } from '../components/opportunities/OpportunityTabs.jsx';
-import OpportunityFilters, { applyFilters } from '../components/opportunities/OpportunityFilters.jsx';
-import OpportunityGrid, { OpportunitiesGridSkeleton } from '../components/opportunities/OpportunityGrid.jsx';
-import OpportunityEvidenceFooter from '../components/opportunities/OpportunityEvidenceFooter.jsx';
+import { usePolling, api, navigateTo, Link } from '../lib/shared.jsx';
 import { SkeletonBlock } from '../components/common/Skeleton.jsx';
-import { Link } from '../lib/shared.jsx';
+import EmptyState from '../components/common/EmptyState.jsx';
+import OpportunityFilterBar from '../components/opportunities/OpportunityFilterBar.jsx';
+import OpportunityHero from '../components/opportunities/OpportunityHero.jsx';
+import OpportunityBoard from '../components/opportunities/OpportunityBoard.jsx';
+import OpportunityEvidenceModal from '../components/opportunities/OpportunityEvidenceModal.jsx';
+import {
+  normalizeOpportunity,
+  pickHero,
+  groupByColumn,
+  applyFilters,
+  hasActiveFilters,
+  DEFAULT_FILTERS,
+} from '../lib/opportunityModel.js';
 import '../styles/opportunities.css';
 
 function useOpportunities(days) {
@@ -69,41 +76,66 @@ function DiagnosticsBanner({ signalsAnalyzed, clusters, generatedAt, warnings })
   );
 }
 
+function PageSkeleton() {
+  return (
+    <>
+      <SkeletonBlock height={48} radius={10} />
+      <SkeletonBlock height={260} radius={16} />
+      <div className="opp-skeleton-board">
+        {[0, 1, 2, 3, 4].map(i => <SkeletonBlock key={i} height={420} radius={14} />)}
+      </div>
+    </>
+  );
+}
+
 export default function OpportunitiesPage() {
   const [days, setDays] = useState(7);
-  const [tab, setTab] = useState('best');
-  const [query, setQuery] = useState('');
-  const [verdict, setVerdict] = useState('all');
-  const [confidence, setConfidence] = useState('all');
-  const [format, setFormat] = useState('all');
-  const [minScore, setMinScore] = useState(0);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [query] = useState('');
+  const [evidenceId, setEvidenceId] = useState(null);
 
   const { data, error, loading, reload } = useOpportunities(days);
-  const allOpportunities = data?.opportunities || [];
 
-  function resetFilters() {
-    setQuery('');
-    setVerdict('all');
-    setConfidence('all');
-    setFormat('all');
-    setMinScore(0);
-  }
+  const normalized = useMemo(() => {
+    const items = data?.opportunities || [];
+    return items.map(normalizeOpportunity).filter(Boolean);
+  }, [data]);
 
-  const tabFiltered = useMemo(() => filterByTab(allOpportunities, tab), [allOpportunities, tab]);
+  const marketOptions = useMemo(() => {
+    const set = new Set();
+    normalized.forEach(it => { if (it.market) set.add(it.market); });
+    return Array.from(set).sort();
+  }, [normalized]);
 
   const filtered = useMemo(
-    () => applyFilters(tabFiltered, { query, verdict, confidence, format, minScore }),
-    [tabFiltered, query, verdict, confidence, format, minScore]
+    () => applyFilters(normalized, filters, query),
+    [normalized, filters, query]
   );
 
-  const isFiltered = query || verdict !== 'all' || confidence !== 'all' || format !== 'all' || minScore > 0;
+  const hero = useMemo(() => pickHero(filtered), [filtered]);
+  const board = useMemo(() => groupByColumn(filtered), [filtered]);
+
+  const evidenceItem = useMemo(() => {
+    if (!evidenceId) return null;
+    return normalized.find(it => it.id === evidenceId) || null;
+  }, [normalized, evidenceId]);
+
+  function resetFilters() {
+    setFilters(DEFAULT_FILTERS);
+  }
+
+  function handleCreateBrief(id) {
+    const briefId = id || hero?.id;
+    navigateTo(briefId ? `/brief?id=${encodeURIComponent(briefId)}` : '/brief');
+  }
 
   if (error) {
     return (
       <div className="opportunities-page">
         <div className="opportunities-header">
           <div>
-            <h1>Що знімати далі</h1>
+            <h1>Можливості</h1>
+            <p className="opportunities-subtitle">Evidence-based вибір наступного відео</p>
           </div>
         </div>
         <div className="todayError">
@@ -122,11 +154,9 @@ export default function OpportunitiesPage() {
         <div>
           <h1>
             <Sparkles size={22} className="opportunities-header-icon" />
-            Що знімати далі
+            Можливості
           </h1>
-          <p className="opportunities-subtitle">
-            Рекомендації на основі реальних даних YouTube та перевірених аналітичних сигналів.
-          </p>
+          <p className="opportunities-subtitle">Evidence-based вибір наступного відео</p>
         </div>
         <button className="iconButton" onClick={reload} title="Оновити">
           <RefreshCw size={18} />
@@ -141,62 +171,68 @@ export default function OpportunitiesPage() {
       />
 
       {loading ? (
-        <>
-          <div className="opp-skeleton-stats">
-            <SkeletonBlock height={96} radius={14} />
-            <SkeletonBlock height={96} radius={14} />
-            <SkeletonBlock height={96} radius={14} />
-          </div>
-          <SkeletonBlock height={44} radius={0} />
-          <SkeletonBlock height={44} radius={8} />
-          <OpportunitiesGridSkeleton />
-        </>
-      ) : allOpportunities.length === 0 ? (
+        <PageSkeleton />
+      ) : normalized.length === 0 ? (
         <>
           <LlmSynthesisPanel text={data?.llm_synthesis} />
-          <div className="todayEmpty">
-            <h2>Поки немає можливостей для аналізу</h2>
-            <p>
-              Система не отримала достатньо YouTube-даних для формування рекомендацій.
-            </p>
-            <div className="rowActions">
-              <Link className="button ghost" href="/jobs">Перейти до Jobs</Link>
-              <Link className="button ghost" href="/data-health">Перевірити Data Health</Link>
-            </div>
-          </div>
+          <EmptyState
+            title="Поки немає можливостей для аналізу"
+            text="Система не отримала достатньо YouTube-даних для формування рекомендацій."
+            action={
+              <div className="rowActions">
+                <Link className="button ghost" href="/jobs">Перейти до Jobs</Link>
+                <Link className="button ghost" href="/data-health">Перевірити Data Health</Link>
+              </div>
+            }
+          />
         </>
       ) : (
         <>
-          <OpportunityStats opportunities={allOpportunities} />
-
-          <LlmSynthesisPanel text={data?.llm_synthesis} />
-
-          <OpportunityTabs active={tab} onChange={t => { setTab(t); resetFilters(); }} />
-
-          <OpportunityFilters
+          <OpportunityFilterBar
             days={days}
-            query={query}
-            verdict={verdict}
-            confidence={confidence}
-            format={format}
-            minScore={minScore}
+            filters={filters}
+            marketOptions={marketOptions}
             onDaysChange={setDays}
-            onQueryChange={setQuery}
-            onVerdictChange={setVerdict}
-            onConfidenceChange={setConfidence}
-            onFormatChange={setFormat}
-            onMinScoreChange={setMinScore}
+            onFiltersChange={setFilters}
             onReset={resetFilters}
           />
 
-          <OpportunityGrid
-            opportunities={filtered}
-            isFiltered={!!isFiltered}
-            onResetFilters={resetFilters}
-          />
+          <LlmSynthesisPanel text={data?.llm_synthesis} />
 
-          <OpportunityEvidenceFooter opportunities={allOpportunities} />
+          {filtered.length === 0 ? (
+            <EmptyState
+              title="Немає результатів за фільтрами"
+              text="Спробуйте змінити фільтри або скинути їх."
+              action={hasActiveFilters(filters) ? (
+                <button className="button" onClick={resetFilters}>Скинути фільтри</button>
+              ) : null}
+            />
+          ) : (
+            <>
+              {hero && (
+                <OpportunityHero
+                  item={hero}
+                  onCreateBrief={() => handleCreateBrief(hero.id)}
+                  onShowEvidence={() => setEvidenceId(hero.id)}
+                />
+              )}
+
+              <OpportunityBoard
+                board={board}
+                total={filtered.length}
+                onShowEvidence={setEvidenceId}
+                onCreateBrief={handleCreateBrief}
+              />
+            </>
+          )}
         </>
+      )}
+
+      {evidenceItem && (
+        <OpportunityEvidenceModal
+          item={evidenceItem}
+          onClose={() => setEvidenceId(null)}
+        />
       )}
     </div>
   );
