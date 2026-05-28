@@ -81,11 +81,15 @@ function TableEmpty({ tab, isFiltered, onResetFilters }) {
 function StandardTrendRows({ items }) {
   return items.map((item) => {
     const competition = competitionMeta(item.competitionLevel);
+    const subtitleText = item.subtitle && item.label && String(item.subtitle).trim() !== String(item.label).trim()
+      ? item.subtitle
+      : '';
+    const subtitlePrefix = item.type === 'topics' && subtitleText ? 'напр.: ' : '';
     return (
       <tr key={`${item.type}-${item.id}`}>
         <td>
           <strong>{textOrMissing(item.label)}</strong>
-          <small>{textOrMissing(item.subtitle)}</small>
+          {subtitleText ? <small>{subtitlePrefix}{subtitleText}</small> : null}
         </td>
         <td><TrendDirectionBadge direction={item.direction} /></td>
         <td className={Number(item.demandGrowth) < 0 ? 'trend-negative' : Number(item.demandGrowth) > 0 ? 'trend-positive' : ''}>{percentOrMissing(item.demandGrowth)}</td>

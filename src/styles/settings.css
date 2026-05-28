@@ -1,0 +1,1084 @@
+/* ── Settings Page ─────────────────────────────────────────────────────────── */
+
+.stPage {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+.stHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 32px;
+}
+
+.stHeaderIcon {
+  color: var(--blue);
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.stPageTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 4px;
+  line-height: 1.2;
+}
+
+.stPageSubtitle {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Two-column layout ───────────────────────────────────────────────────── */
+
+.stLayout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* ── Left nav ────────────────────────────────────────────────────────────── */
+
+.stNav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: sticky;
+  top: 24px;
+}
+
+.stNavItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, color 0.12s;
+  width: 100%;
+  position: relative;
+}
+
+.stNavItem:hover {
+  background: var(--subtle-bg);
+  color: var(--text);
+}
+
+.stNavItem--active {
+  background: var(--subtle-bg-strong);
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.stNavSaved {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--green);
+  font-weight: 700;
+}
+
+/* ── Section ─────────────────────────────────────────────────────────────── */
+
+.stContent {
+  min-width: 0;
+}
+
+.stSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.stSectionHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 24px;
+}
+
+.stSectionTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 4px;
+  line-height: 1.3;
+}
+
+.stSectionDesc {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin: 0;
+  max-width: 520px;
+  line-height: 1.5;
+}
+
+/* ── Save button ─────────────────────────────────────────────────────────── */
+
+.stSaveBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1.5px solid var(--blue);
+  background: var(--blue);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity 0.12s, background 0.15s, border-color 0.15s;
+}
+
+.stSaveBtn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.stSaveBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.stSaveBtn--saved {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+/* ── Fields ──────────────────────────────────────────────────────────────── */
+
+.stSectionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.stField {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.stLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stHint {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.stFieldNote {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 6px;
+  line-height: 1.5;
+}
+
+.stGrid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+
+/* ── Inputs ──────────────────────────────────────────────────────────────── */
+
+.stInput {
+  width: 100%;
+  padding: 8px 11px;
+  border-radius: 7px;
+  border: 1.5px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.12s;
+  box-sizing: border-box;
+}
+
+.stInput:focus {
+  border-color: var(--blue);
+}
+
+.stInput--mono { font-family: monospace; font-size: 12px; }
+.stInput--sm { font-size: 12px; padding: 6px 9px; }
+.stInput--xs { width: 56px; text-align: center; padding: 6px 6px; flex-shrink: 0; }
+.stInput--center { text-align: center; font-size: 20px; font-weight: 700; }
+.stInput--grow { flex: 1; }
+
+.stSelect {
+  padding: 8px 11px;
+  border-radius: 7px;
+  border: 1.5px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.12s;
+  width: 100%;
+}
+
+.stSelect:focus { border-color: var(--blue); }
+.stSelect--sm { width: auto; }
+
+.stTextarea {
+  width: 100%;
+  padding: 9px 11px;
+  border-radius: 7px;
+  border: 1.5px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.12s;
+  box-sizing: border-box;
+  min-height: 80px;
+}
+
+.stTextarea:focus { border-color: var(--blue); }
+
+/* ── Tag list ────────────────────────────────────────────────────────────── */
+
+.stTagList {
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 8px;
+  transition: border-color 0.12s;
+}
+
+.stTagList:focus-within { border-color: var(--blue); }
+
+.stTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.stTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px 4px 10px;
+  background: var(--subtle-bg-strong);
+  border-radius: 5px;
+  font-size: 12.5px;
+  color: var(--text);
+  font-weight: 500;
+  line-height: 1.3;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stTagRemove {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.1s;
+}
+
+.stTagRemove:hover { color: var(--red); }
+
+.stTagInput {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  padding: 2px 4px;
+  min-width: 120px;
+  flex: 1;
+}
+
+.stTagInput::placeholder { color: var(--muted); }
+
+.stTagList--compact .stTag {
+  font-size: 11.5px;
+  padding: 3px 7px 3px 9px;
+}
+
+/* ── Suggestion chips ────────────────────────────────────────────────────── */
+
+.stSuggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.stSuggestionChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 5px;
+  border: 1.5px dashed var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.1s, color 0.1s, background 0.1s;
+}
+
+.stSuggestionChip:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--subtle-bg);
+}
+
+/* ── Category grid ───────────────────────────────────────────────────────── */
+
+.stCategoryGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.stCategoryChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1.5px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+}
+
+.stCategoryChip:hover {
+  border-color: var(--blue);
+  color: var(--text);
+}
+
+.stCategoryChip--active {
+  border-color: var(--blue);
+  background: rgba(47, 125, 246, 0.1);
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.stCategoryId {
+  font-family: monospace;
+  font-size: 11px;
+  color: inherit;
+  opacity: 0.7;
+  margin-right: 2px;
+}
+
+/* ── Competitors ─────────────────────────────────────────────────────────── */
+
+.stCompetitorToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.stFilterTabs {
+  display: flex;
+  gap: 4px;
+  background: var(--subtle-bg);
+  padding: 3px;
+  border-radius: 8px;
+}
+
+.stFilterTab {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.1s, color 0.1s;
+}
+
+.stFilterTab:hover { color: var(--text); }
+
+.stFilterTab--active {
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+.stFilterCount {
+  font-size: 11px;
+  opacity: 0.7;
+  background: var(--subtle-bg-strong);
+  border-radius: 10px;
+  padding: 1px 5px;
+  line-height: 1.4;
+}
+
+.stAddBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 7px;
+  border: 1.5px solid var(--blue);
+  background: transparent;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.stAddBtn:hover { background: rgba(47, 125, 246, 0.07); }
+
+.stCompetitorList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stCompetitorRow {
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.12s;
+}
+
+.stCompetitorRow:hover { border-color: var(--blue); }
+
+.stCompetitorMain {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.stCompetitorSub {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.stIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+}
+
+.stIconBtn--danger:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: rgba(220, 38, 38, 0.07);
+}
+
+.stCompetitorHint {
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: var(--subtle-bg);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.stCompetitorHint code {
+  font-family: monospace;
+  font-size: 11.5px;
+  background: var(--subtle-bg-strong);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--text);
+}
+
+/* ── Scoring ─────────────────────────────────────────────────────────────── */
+
+.stSubsection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.stSubsection:last-child { border-bottom: none; padding-bottom: 0; }
+
+.stSubsectionTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stThresholdGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.stThresholdCard {
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  text-align: center;
+}
+
+.stThresholdCard--green { border-top: 3px solid var(--green); }
+.stThresholdCard--blue  { border-top: 3px solid var(--blue); }
+.stThresholdCard--orange{ border-top: 3px solid var(--orange); }
+
+.stThresholdLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stThresholdDesc {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.stWeightList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stWeightRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.stWeightLabel {
+  display: flex;
+  flex-direction: column;
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.stWeightLabel > span:first-child {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.stWeightControl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.stRange {
+  flex: 1;
+  height: 4px;
+  cursor: pointer;
+  accent-color: var(--blue);
+}
+
+.stWeightTotal {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 5px;
+}
+
+.stWeightTotal--ok   { background: rgba(21, 153, 87, 0.12); color: var(--green); }
+.stWeightTotal--warn { background: rgba(217, 119, 6, 0.12); color: var(--orange); }
+
+/* ── State ───────────────────────────────────────────────────────────────── */
+
+.stLoading,
+.stError,
+.stEmpty {
+  padding: 32px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13.5px;
+  border: 1.5px dashed var(--line);
+  border-radius: 10px;
+}
+
+.stError { color: var(--red); border-color: var(--red); }
+
+/* ── Toasts ──────────────────────────────────────────────────────────────── */
+
+.stToasts {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.stToast {
+  padding: 11px 18px;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0,0,0,.14);
+  animation: stFadeIn 0.2s ease;
+}
+
+.stToast--green { background: var(--green); color: #fff; }
+.stToast--red   { background: var(--red);   color: #fff; }
+
+@keyframes stFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  .stLayout { grid-template-columns: 1fr; }
+  .stNav { flex-direction: row; flex-wrap: wrap; position: static; gap: 4px; }
+  .stNavItem { padding: 7px 10px; font-size: 12.5px; }
+  .stGrid2 { grid-template-columns: 1fr 1fr; }
+  .stThresholdGrid { grid-template-columns: 1fr; }
+  .stCompetitorMain { grid-template-columns: 1fr auto; }
+  .stWeightLabel { width: 110px; }
+}
+
+/* ── YouTube Tab ────────────────────────────────────────────────────────────── */
+
+.stYouTubeTab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ytConnectCard {
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ytConnectCard.ytStatus--connected { border-top: 3px solid var(--green); }
+.ytConnectCard.ytStatus--pending   { border-top: 3px solid var(--orange, #f59e0b); }
+.ytConnectCard.ytStatus--error     { border-top: 3px solid var(--red); }
+
+.ytConnectCardHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ytIcon { color: #ff0000; }
+
+/* Connected channel profile */
+.ytChannelProfile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ytChannelThumb {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--line);
+}
+
+.ytChannelInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ytChannelName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ytChannelMeta {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ytDisconnectBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  border: 1.5px solid var(--red);
+  background: transparent;
+  color: var(--red);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.ytDisconnectBtn:hover { background: rgba(220, 38, 38, 0.07); }
+
+/* Disconnected state */
+.ytDisconnectedState,
+.ytErrorState {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ytConnectBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: #ff0000;
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.12s;
+  align-self: flex-start;
+}
+.ytConnectBtn:hover:not(:disabled) { opacity: 0.88; }
+.ytConnectBtn:disabled { opacity: 0.5; cursor: default; }
+
+/* Auth URL box */
+.ytAuthBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ytAuthInstruction {
+  font-size: 13px;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ytAuthUrl {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--subtle-bg);
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.ytAuthUrl code {
+  flex: 1;
+  font-family: monospace;
+  font-size: 11.5px;
+  color: var(--blue);
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.ytAuthCopyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1.5px solid var(--blue);
+  background: transparent;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ytAuthActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ytAuthNote {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+  flex: 1;
+}
+
+.ytCancelBtn {
+  font-size: 12px;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.ytPollingDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--orange, #f59e0b);
+  animation: ytPulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes ytPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+.ytErrorMsg {
+  font-size: 13px;
+  color: var(--red);
+  margin: 0;
+}
+
+/* Refresh analytics button */
+.ytRefreshBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 7px;
+  border: 1.5px solid var(--blue);
+  background: transparent;
+  color: var(--blue);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.12s;
+}
+.ytRefreshBtn:hover:not(:disabled) { background: rgba(59, 130, 246, 0.07); }
+.ytRefreshBtn:disabled { opacity: 0.5; cursor: default; }
+
+.ytSpinIcon { animation: ytSpin 1s linear infinite; }
+@keyframes ytSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Video analytics table */
+.ytVideoTable {
+  display: flex;
+  flex-direction: column;
+  border: 1.5px solid var(--line);
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.ytVideoHead,
+.ytVideoRow {
+  display: grid;
+  grid-template-columns: 1fr 90px 80px 60px 60px;
+  gap: 8px;
+  padding: 9px 14px;
+  align-items: center;
+}
+
+.ytVideoHead {
+  background: var(--subtle-bg);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ytVideoRow {
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+}
+.ytVideoRow:hover { background: var(--subtle-bg); }
+
+.ytVideoTitle {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.ytVideoTitle:hover { color: var(--blue); }
+
+.ytExtIcon { flex-shrink: 0; opacity: 0.5; }
+
+.ytVideoDate { color: var(--muted); font-size: 12px; }
+.ytVideoNum  { font-variant-numeric: tabular-nums; font-size: 12.5px; }
+
+/* Empty / loading states */
+.ytEmpty {
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  border: 1.5px dashed var(--line);
+  border-radius: 9px;
+}
+
+/* Textarea in YouTube tab */
+.stTextarea {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--subtle-bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.stTextarea:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+/* stInput */
+.stInput {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--subtle-bg);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.stInput:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+/* stSelect */
+.stSelect {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--subtle-bg);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  box-sizing: border-box;
+  cursor: pointer;
+  appearance: auto;
+}
+.stSelect:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+/* Character counter under textarea / tag list */
+.ytCharCount {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* Trailer preview link */
+.ytTrailerLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--blue);
+  text-decoration: none;
+  margin-top: 5px;
+}
+.ytTrailerLink:hover { text-decoration: underline; }

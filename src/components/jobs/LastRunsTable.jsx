@@ -6,6 +6,7 @@ const STATUS_LABELS = {
   running:       'Виконується',
   failed:        'Помилка',
   stopped:       'Зупинено',
+  skipped:       'Пропущено',
   obsolete_failed: 'Застаріло',
   unknown:       'Невідомо',
 };

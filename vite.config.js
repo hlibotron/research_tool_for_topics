@@ -15,5 +15,17 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react-dom')) return 'vendor-react-dom';
+            if (id.includes('lucide-react')) return 'vendor-icons';
+            if (id.includes('/react/')) return 'vendor-react';
+            return 'vendor';
+          }
+        },
+      },
+    },
   },
 });

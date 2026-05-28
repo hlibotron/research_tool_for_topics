@@ -1,5 +1,5 @@
-import React from 'react';
-import { Wand2, RefreshCw, AlertTriangle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Wand2, RefreshCw, AlertTriangle, Sparkles, Loader2 } from 'lucide-react';
 import { usePolling, api, Link } from '../lib/shared.jsx';
 import { formatLabel } from '../lib/formatters.js';
 import BriefHeader from '../components/brief/BriefHeader.jsx';
@@ -11,6 +11,7 @@ import BriefHookLab from '../components/brief/BriefHookLab.jsx';
 import BriefStructure from '../components/brief/BriefStructure.jsx';
 import BriefBroll from '../components/brief/BriefBroll.jsx';
 import BriefTitles from '../components/brief/BriefTitles.jsx';
+import BriefThumbnail from '../components/brief/BriefThumbnail.jsx';
 import BriefHashtags from '../components/brief/BriefHashtags.jsx';
 import BriefEvidence from '../components/brief/BriefEvidence.jsx';
 import BriefRisks from '../components/brief/BriefRisks.jsx';
@@ -35,6 +36,14 @@ function normalizeBriefData(source) {
         ...(hashtagGroups.experimental || []),
       ];
 
+  // Normalize hooks: support both string[] (legacy) and object[] with {type, text}
+  const rawHooks = source.hooks || source.hookOptions || [];
+  const hooks = rawHooks.length > 0
+    ? rawHooks.map(h => typeof h === 'string' ? { type: 'default', text: h } : h)
+    : source.suggestedHook
+      ? [{ type: 'default', text: source.suggestedHook }]
+      : [];
+
   return {
     id: source.id || source.topic_key || source.topic,
     title: source.suggestedTitles?.[0] || source.title || source.topic || 'Без назви',
@@ -49,13 +58,15 @@ function normalizeBriefData(source) {
     firstAction: source.firstAction || source.recommendedAction || null,
     concept: source.concept || source.suggested_angle || source.angle || source.summary || null,
     conceptTags: source.conceptTags || source.tags || source.keywords || [],
-    hooks: source.hooks || source.hookOptions || (source.suggestedHook ? [source.suggestedHook] : []),
+    hooks,
     recommendedHookIndex: source.recommendedHookIndex ?? 0,
+    scriptOutline: source.scriptOutline || source.script_outline || [],
     structure: source.structure || source.videoStructure || source.scriptStructure
       || source.productionPlan?.structure || source.suggestedStructure || [],
     broll: source.broll || source.bRoll || source.inserts || source.shotList || [],
     titles: source.suggestedTitles || source.titles || [],
     thumbnails: source.thumbnailIdeas || source.thumbnails || [],
+    thumbnailConcepts: source.thumbnailConcepts || source.thumbnail_concepts || [],
     hashtags: flatHashtags,
     evidence: Array.isArray(source.evidence) ? source.evidence
       : Array.isArray(source.whyRecommended) ? source.whyRecommended
@@ -66,6 +77,9 @@ function normalizeBriefData(source) {
     videosAnalyzed: source.dataHealth?.videosAnalyzed || source.videosAnalyzed || source.videos_analyzed || 0,
     channelsAnalyzed: source.dataHealth?.sourcesCount || source.channelsAnalyzed || source.channels_analyzed || 0,
     updatedAt: source.dataHealth?.lastUpdated || source.updatedAt || source.updated_at || null,
+    channelFitVerdict: source.channelFitVerdict || source.channel_fit_verdict || '',
+    channelFitReason: source.channelFitReason || source.channel_fit_reason || '',
+    productionNotes: source.productionNotes || source.production_notes || '',
     source,
   };
 }
@@ -120,7 +134,39 @@ export default function BriefPage({ route }) {
     sourceOpportunity = data?.best || opportunities[0] || null;
   }
 
-  const brief = sourceOpportunity ? normalizeBriefData(sourceOpportunity) : null;
+  const [briefOverride, setBriefOverride] = useState(null);
+  const [generating, setGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState(null);
+
+  const mergedSource = briefOverride
+    ? { ...sourceOpportunity, ...briefOverride }
+    : sourceOpportunity;
+
+  const brief = mergedSource ? normalizeBriefData(mergedSource) : null;
+
+  const hasRichBrief = brief && (brief.hooks?.length > 1 || brief.scriptOutline?.length > 0);
+
+  async function handleGenerate() {
+    if (!brief?.id) return;
+    setGenerating(true);
+    setGenerateError(null);
+    try {
+      const res = await api('/api/brief/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: brief.id }),
+      });
+      if (res.ok) {
+        setBriefOverride(res.brief);
+      } else {
+        setGenerateError(res.error || 'Помилка генерації бріфу');
+      }
+    } catch (err) {
+      setGenerateError(String(err));
+    } finally {
+      setGenerating(false);
+    }
+  }
 
   if (loading) return (
     <div className="brief-page">
@@ -170,6 +216,8 @@ export default function BriefPage({ route }) {
   );
 
   const hasHashtags = brief.hashtags?.length > 0;
+  const hasThumbnailConcepts = brief.thumbnailConcepts?.length > 0;
+  let sectionNum = 1;
 
   return (
     <div className="brief-page">
@@ -187,45 +235,89 @@ export default function BriefPage({ route }) {
 
       {lowEvidenceWarning(brief)}
 
+      {!hasRichBrief && (
+        <div className="brief-generate-bar">
+          <div className="brief-generate-bar-text">
+            <Sparkles size={15} />
+            Бріф містить лише базові шаблони. Згенеруй персоналізований AI-бріф зі сценарієм, гачками та thumbnail-концептами.
+          </div>
+          <button
+            className="button"
+            onClick={handleGenerate}
+            disabled={generating}
+            style={{ whiteSpace: 'nowrap' }}
+          >
+            {generating ? <Loader2 size={14} className="spin" /> : <Sparkles size={14} />}
+            {generating ? 'Генерую...' : 'Згенерувати AI бріф'}
+          </button>
+        </div>
+      )}
+
+      {generateError && (
+        <div className="brief-warning">
+          <AlertTriangle size={15} />
+          {generateError}
+        </div>
+      )}
+
+      {hasRichBrief && briefOverride && (
+        <div className="brief-generate-bar" style={{ '--bar-bg': 'var(--green-bg, #f0fdf4)', '--bar-border': 'var(--green, #22c55e)' }}>
+          <div className="brief-generate-bar-text" style={{ color: 'var(--green, #16a34a)' }}>
+            <Sparkles size={15} />
+            AI бріф згенеровано успішно. Сценарій, гачки та thumbnail-концепти доступні нижче.
+          </div>
+          <button className="button ghost" onClick={handleGenerate} disabled={generating} style={{ whiteSpace: 'nowrap' }}>
+            {generating ? <Loader2 size={14} className="spin" /> : <RefreshCw size={14} />}
+            Перегенерувати
+          </button>
+        </div>
+      )}
+
       <BriefActions brief={brief} />
 
       <div className="brief-content-layout">
         <div className="brief-main">
-          <BriefSection num={1} title="Концепт відео">
+          <BriefSection num={sectionNum++} title="Концепт відео">
             <BriefConcept brief={brief} />
           </BriefSection>
 
-          <BriefSection num={2} title="Hook Lab">
+          <BriefSection num={sectionNum++} title="Hook Lab">
             <BriefHookLab brief={brief} />
           </BriefSection>
 
-          <BriefSection num={3} title={brief.recommendedFormat ? `Структура відео (${formatLabel(brief.recommendedFormat)})` : 'Структура відео'}>
+          <BriefSection num={sectionNum++} title={brief.recommendedFormat ? `Структура та сценарій (${formatLabel(brief.recommendedFormat)})` : 'Структура та сценарій'}>
             <BriefStructure brief={brief} />
           </BriefSection>
 
-          <BriefSection num={4} title="B-roll та вставки">
+          <BriefSection num={sectionNum++} title="B-roll та вставки">
             <BriefBroll brief={brief} />
           </BriefSection>
 
-          <BriefSection num={5} title="Назви та thumbnail ideas">
+          <BriefSection num={sectionNum++} title="Назви відео">
             <BriefTitles brief={brief} />
           </BriefSection>
 
+          {hasThumbnailConcepts && (
+            <BriefSection num={sectionNum++} title="Thumbnail концепти">
+              <BriefThumbnail brief={brief} />
+            </BriefSection>
+          )}
+
           {hasHashtags && (
-            <BriefSection num={6} title="Хештеги">
+            <BriefSection num={sectionNum++} title="Хештеги">
               <BriefHashtags brief={brief} />
             </BriefSection>
           )}
 
-          <BriefSection num={hasHashtags ? 7 : 6} title="Докази та трендові сигнали">
+          <BriefSection num={sectionNum++} title="Докази та трендові сигнали">
             <BriefEvidence brief={brief} />
           </BriefSection>
 
-          <BriefSection num={hasHashtags ? 8 : 7} title="Ризики">
+          <BriefSection num={sectionNum++} title="Ризики">
             <BriefRisks brief={brief} />
           </BriefSection>
 
-          <BriefSection num={hasHashtags ? 9 : 8} title="Наступні дії">
+          <BriefSection num={sectionNum++} title="Наступні дії">
             <BriefNextActions brief={brief} />
           </BriefSection>
 

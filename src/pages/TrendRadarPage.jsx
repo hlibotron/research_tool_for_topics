@@ -10,6 +10,7 @@ import TrendTabs from '../components/trend-radar/TrendTabs.jsx';
 import TrendFilters from '../components/trend-radar/TrendFilters.jsx';
 import TrendTable from '../components/trend-radar/TrendTable.jsx';
 import TrendInsights from '../components/trend-radar/TrendInsights.jsx';
+import TrendDynamicsChart from '../components/trend-radar/TrendDynamicsChart.jsx';
 import TrendEvidenceExamples from '../components/trend-radar/TrendEvidenceExamples.jsx';
 import TrendEvidenceFooter from '../components/trend-radar/TrendEvidenceFooter.jsx';
 import '../styles/trend-radar.css';
@@ -90,17 +91,25 @@ export function getTrendRecommendation(item) {
 }
 
 export function normalizeTrendItem(raw, type) {
-  const label = firstPresent(raw.label, raw.topic, raw.hashtag, raw.title, raw.name);
+  // For "topics" the abstract topic concept (name/topic_key) takes priority over the title of
+  // one video that happens to be the cluster best — title is just an example.
+  const label = type === 'topics'
+    ? firstPresent(raw.name, raw.topic, raw.topic_key, raw.label, raw.hashtag, raw.title)
+    : firstPresent(raw.label, raw.topic, raw.hashtag, raw.title, raw.name);
   const demandGrowth = toNumberOrNull(firstPresent(raw.demandGrowth, raw.demand_growth, raw.growth, raw.changePercent, raw.viewsGrowth, raw.effective_change, raw.change_30d, raw.change_7d));
   const rawDirection = firstPresent(raw.direction, raw.trendStatus, raw.trend_status, raw.trend, raw.status);
   const competitionValue = firstPresent(raw.competitionLevel, raw.competition_level, raw.competition, raw.competitionScore, raw.competition_score);
   const evidenceValue = firstPresent(raw.evidenceQuality, raw.evidence_quality, raw.confidenceScore, raw.confidence);
   const rawRecommendation = firstPresent(raw.recommendation, raw.action, raw.suggestedAction);
+  const subtitle = type === 'topics'
+    ? firstPresent(raw.exampleTitle, raw.example_title, raw.title, raw.subtitle, raw.description, raw.category)
+    : firstPresent(raw.subtitle, raw.description, raw.category, raw.channel, raw.topic);
   const item = {
     id: firstPresent(raw.id, raw.video_id, raw.url, label),
     type,
     label,
-    subtitle: firstPresent(raw.subtitle, raw.description, raw.category, raw.channel, raw.topic),
+    subtitle,
+    suggestedAngle: firstPresent(raw.suggestedAngle, raw.suggested_angle),
     direction: normalizeDirection(rawDirection, demandGrowth),
     demandGrowth,
     competitionLevel: normalizeCompetition(competitionValue),
@@ -259,6 +268,7 @@ export default function TrendRadarPage() {
       ) : (
         <>
           <TrendSummaryCards data={normalizedData} />
+          <TrendDynamicsChart />
           <section className="trend-radar-workspace">
             <TrendTabs activeTab={activeTab} onChange={(tab) => { setActiveTab(tab); resetFilters(); }} />
             <TrendFilters

@@ -1,310 +1,546 @@
-/* ── Today Page Layout ─────────────────────────────────────────────────────── */
+/* ── Today / Live Intelligence Page ─────────────────────────────────────── */
 
-.todayPage {
-  padding: 28px 32px 48px;
-  max-width: 1280px;
-  display: grid;
-  gap: 32px;
+.tiPage {
+  margin: -20px -24px 0;
+  padding: 0 32px 64px;
+  width: calc(100% + 48px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-.todayPageHeader {
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+.tiHeader {
+  padding: 24px 32px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0;
+}
+
+.tiHeaderTop {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
 }
 
-.todayPageHeader h1 {
-  font-size: 28px;
+.tiTitle {
+  font-size: 26px;
   font-weight: 700;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   color: var(--text);
+  line-height: 1.2;
 }
 
-.todaySubtitle {
+.tiSubtitle {
+  font-size: 13px;
   color: var(--muted);
-  font-size: 14px;
   margin: 0;
-  max-width: 560px;
+  max-width: 600px;
   line-height: 1.5;
 }
 
-/* ── Hero ──────────────────────────────────────────────────────────────────── */
+/* ── Live Bar ────────────────────────────────────────────────────────────── */
 
-.todayHero {
-  background: linear-gradient(135deg, rgba(9,23,37,.95) 0%, rgba(13,30,50,.98) 100%);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.todayHero > :first-child {
-  padding: 28px 32px 24px;
-}
-
-.todayHero .todayMetricStrip {
-  border-radius: 0;
-  border: none;
-  border-top: 1px solid var(--line);
-  background: rgba(5, 16, 27, 0.6);
-}
-
-.todayHeroInner {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 32px;
-  align-items: start;
-}
-
-.todayHeroLeft {
-  display: grid;
-  gap: 14px;
-}
-
-.todayHeroRight {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.todayHeroMain {
-  display: grid;
-  gap: 16px;
-}
-
-.todayHeroBadgeRow {
+.tiLiveBar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-.todayHeroTitle {
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.3;
-  margin: 0;
-  color: var(--text);
-}
+.tiLiveBar::-webkit-scrollbar { display: none; }
 
-.todayHeroMeta {
+.tiLiveDot {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-/* ── Verdict Button ────────────────────────────────────────────────────────── */
-
-.todayVerdictBtn {
-  display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  padding: 5px 13px;
-  border-radius: 20px;
-  letter-spacing: 0.03em;
-}
-
-.todayVerdictgreen {
-  background: rgba(54, 193, 119, 0.15);
   color: var(--green);
-  border: 1px solid rgba(54, 193, 119, 0.3);
+  padding-right: 20px;
+  margin-right: 20px;
+  border-right: 1px solid var(--line);
+  flex-shrink: 0;
 }
 
-.todayVerdictblue {
-  background: rgba(47, 125, 246, 0.15);
-  color: var(--blue);
-  border: 1px solid rgba(47, 125, 246, 0.3);
-}
-
-.todayVerdictred {
-  background: rgba(231, 93, 93, 0.15);
-  color: var(--red);
-  border: 1px solid rgba(231, 93, 93, 0.3);
-}
-
-.todayVerdictwatch,
-.todayverdictnetural,
-.todayVerdictadapt {
-  background: rgba(142, 163, 184, 0.12);
-  color: var(--muted);
-  border: 1px solid rgba(142, 163, 184, 0.2);
-}
-
-.todayHeroTime {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-/* ── Thumbnail Placeholder ─────────────────────────────────────────────────── */
-
-.todayThumbnail {
-  width: 220px;
-  height: 124px;
-  background: linear-gradient(135deg, rgba(18,40,65,.9), rgba(9,23,37,.95));
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.todayThumbnailPlay {
-  width: 42px;
-  height: 42px;
-  background: rgba(47, 125, 246, 0.85);
+.tiLivePulse {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: tiPulse 2s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes tiPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--green); }
+  50% { opacity: 0.6; box-shadow: 0 0 12px var(--green); }
+}
+
+.tiLiveStat {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 20px rgba(47, 125, 246, 0.4);
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 20px 8px 0;
+  margin-right: 20px;
+  border-right: 1px solid var(--line);
+  flex-shrink: 0;
 }
 
-.todayHookBox {
-  background: rgba(47, 125, 246, 0.07);
-  border-left: 3px solid var(--blue);
-  border-radius: 0 8px 8px 0;
-  padding: 12px 16px;
-  max-width: 220px;
-}
+.tiLiveStat:last-child { border-right: none; margin-right: 0; }
 
-.todayHookLabel {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--blue);
-  display: block;
-  margin-bottom: 6px;
-}
-
-.todayHookText {
-  font-size: 13px;
-  font-style: italic;
+.tiLiveStatLabel {
+  font-size: 10px;
   color: var(--muted);
-  margin: 0;
-  line-height: 1.5;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
-.todayHeroActions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-/* ── Badges ────────────────────────────────────────────────────────────────── */
-
-.todayBadge {
-  font-size: 11px;
+.tiLiveStat strong {
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  padding: 4px 10px;
-  border-radius: 20px;
-  display: inline-block;
-  text-transform: uppercase;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
 }
 
-.todayBadgegreen {
-  background: rgba(54, 193, 119, 0.15);
-  color: var(--green);
-  border: 1px solid rgba(54, 193, 119, 0.3);
+.tiLiveStat strong.green { color: var(--green); }
+.tiLiveStat strong.orange { color: var(--orange); }
+.tiLiveStat strong.red { color: var(--red); }
+
+/* ── Period Tabs ─────────────────────────────────────────────────────────── */
+
+.tiPeriodRow {
+  display: flex;
+  align-items: center;
+  gap: 0;
 }
 
-.todayBadgeorange {
-  background: rgba(245, 158, 46, 0.15);
-  color: var(--orange);
-  border: 1px solid rgba(245, 158, 46, 0.3);
-}
-
-.todayBadgered {
-  background: rgba(231, 93, 93, 0.15);
-  color: var(--red);
-  border: 1px solid rgba(231, 93, 93, 0.3);
-}
-
-.todayBadgeblue {
-  background: rgba(47, 125, 246, 0.15);
-  color: var(--blue);
-  border: 1px solid rgba(47, 125, 246, 0.3);
-}
-
-.todayBadgeneutral {
-  background: rgba(142, 163, 184, 0.12);
-  color: var(--muted);
-  border: 1px solid rgba(142, 163, 184, 0.2);
-}
-
-/* ── Metric Strip ──────────────────────────────────────────────────────────── */
-
-.todayMetricStrip {
+.tiTabs {
   display: flex;
   gap: 0;
-  background: rgba(9, 23, 37, 0.7);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  overflow: hidden;
 }
 
-.todayMetricItem {
+.tiTab {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.tiTab:hover { color: var(--text); }
+.tiTab.active {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+  font-weight: 600;
+}
+
+/* ── KPI Strip ───────────────────────────────────────────────────────────── */
+
+.tiKpiStrip {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--line);
+  scrollbar-width: none;
+}
+
+.tiKpiStrip::-webkit-scrollbar { display: none; }
+
+.tiKpiItem {
   flex: 1;
-  padding: 14px 16px;
+  min-width: 110px;
+  padding: 16px 18px;
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.todayMetricItem:last-child {
-  border-right: none;
-}
+.tiKpiItem:last-child { border-right: none; }
 
-.todayMetricBody {
+.tiKpiIcon {
+  color: var(--blue);
   display: flex;
   align-items: center;
-  min-height: 40px;
+  opacity: 0.7;
 }
 
-.todayMetricLabel {
+.tiKpiLabel {
   font-size: 11px;
   color: var(--muted);
-  display: block;
-  letter-spacing: 0.02em;
-}
-
-.todayMetricValue {
-  font-size: 20px;
-  font-weight: 700;
-  display: block;
-}
-
-.todayMetricSub {
-  font-size: 11px;
-  color: var(--muted);
-  margin: 2px 0 0;
   line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.todayMetricValue.green { color: var(--green); }
-.todayMetricValue.orange { color: var(--orange); }
-.todayMetricValue.red { color: var(--red); }
-.todayMetricValue.blue { color: var(--blue); }
-.todayMetricValue.neutral { color: var(--text); }
+.tiKpiValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+}
 
-/* ── Circular Score (SVG gauge) ────────────────────────────────────────────── */
+/* ── Main Grid (Chart + After Jobs) ─────────────────────────────────────── */
 
-.todayCircularScore {
-  position: relative;
-  width: 64px;
-  height: 64px;
+.tiMainGrid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+/* ── Chart Section ───────────────────────────────────────────────────────── */
+
+.tiChartSection {
+  padding: 24px 28px;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tiSectionHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tiSectionHeader h2,
+.tiSectionHeader h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tiSectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--text);
+}
+
+.tiSectionNote {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.tiChartWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tiChartSvg {
+  width: 100%;
+  height: 240px;
+  display: block;
+}
+
+.tiChartLegend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tiChartLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.tiChartLegendItem span {
+  width: 20px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.tiChartLegendItem.blue span { background: rgba(47,125,246,0.85); }
+.tiChartLegendItem.green span { background: rgba(54,193,119,0.65); }
+.tiChartLegendItem.purple span { background: rgba(155,108,255,0.65); }
+.tiChartLegendItem.orange span { background: rgba(245,158,46,0.55); }
+.tiChartLegendItem.muted span { border-top: 1px dashed rgba(142,163,184,0.4); width: 20px; height: 0; }
+
+.tiChartEmpty {
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+}
+
+/* ── Event List ──────────────────────────────────────────────────────────── */
+
+.tiEventList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tiEventItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-top: 1px solid rgba(27,49,72,0.5);
+  font-size: 12px;
+}
+
+.tiEventTime {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
   flex-shrink: 0;
 }
 
-.todayCircularLabel {
+.tiEventLabel {
+  color: var(--text);
+  flex: 1;
+}
+
+.tiEventSource {
+  color: var(--muted);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+/* ── After Jobs Panel ────────────────────────────────────────────────────── */
+
+.tiAfterJobs {
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tiAfterJobsHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tiAfterJobsHeader h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.tiAfterJobsTime {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.tiAfterJobsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.tiAfterJobsItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: rgba(9,23,37,0.6);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.tiAfterJobsIcon {
+  color: var(--blue);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tiAfterJobsNew {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--green);
+  line-height: 1;
+}
+
+.tiAfterJobsLabel {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.tiAfterJobsTotal {
+  font-size: 10px;
+  color: rgba(142,163,184,0.6);
+  margin-top: 1px;
+}
+
+.tiLatestJob {
+  background: rgba(9,23,37,0.6);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tiLatestJobLabel {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tiLatestJobRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tiJobStatus {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.tiJobStatus.completed { background: rgba(54,193,119,0.15); color: var(--green); }
+.tiJobStatus.running { background: rgba(47,125,246,0.15); color: var(--blue); }
+.tiJobStatus.failed { background: rgba(231,93,93,0.15); color: var(--red); }
+
+.tiLatestJobName {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.tiLatestJobSource {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ── Opportunity Cards ───────────────────────────────────────────────────── */
+
+.tiOpportunities {
+  padding: 28px 32px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tiOpportunities .tiSectionHeader {
+  margin-bottom: 20px;
+}
+
+.tiOpportunities .tiSectionHeader h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.tiOppGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.tiOppCard {
+  background: rgba(9,23,37,0.7);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color 0.15s;
+}
+
+.tiOppCard:hover { border-color: rgba(47,125,246,0.4); }
+
+.tiOppCardTop {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.tiOppRank {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.tiOppRank.rank1 { background: rgba(54,193,119,0.2); color: var(--green); border: 1px solid rgba(54,193,119,0.4); }
+.tiOppRank.rank2 { background: rgba(245,158,46,0.2); color: var(--orange); border: 1px solid rgba(245,158,46,0.4); }
+.tiOppRank.rank3 { background: rgba(231,93,93,0.2); color: var(--red); border: 1px solid rgba(231,93,93,0.4); }
+
+.tiOppCardTitle {
+  flex: 1;
+  min-width: 0;
+}
+
+.tiOppCardTitle h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.tiOppCardMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tiOppBadge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.tiOppBadge.green { background: rgba(54,193,119,0.12); color: var(--green); border: 1px solid rgba(54,193,119,0.2); }
+.tiOppBadge.orange { background: rgba(245,158,46,0.12); color: var(--orange); border: 1px solid rgba(245,158,46,0.2); }
+.tiOppBadge.red { background: rgba(231,93,93,0.12); color: var(--red); border: 1px solid rgba(231,93,93,0.2); }
+.tiOppBadge.neutral { background: rgba(142,163,184,0.1); color: var(--muted); border: 1px solid rgba(142,163,184,0.2); }
+
+/* Circle Score */
+.tiCircleScore {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.tiCircleScore svg { position: absolute; inset: 0; }
+
+.tiCircleLabel {
   position: absolute;
   inset: 0;
   display: flex;
@@ -314,541 +550,530 @@
   line-height: 1;
 }
 
-.todayCircularLabel strong {
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1;
+.tiCircleLabel strong { font-size: 14px; font-weight: 700; color: var(--text); }
+.tiCircleLabel span { font-size: 9px; color: var(--muted); margin-top: 1px; }
+
+/* Evidence row */
+.tiOppEvidence {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.todayCircularLabel span {
-  font-size: 9px;
-  color: var(--muted);
-  margin-top: 2px;
-}
-
-/* ── Dot Value ─────────────────────────────────────────────────────────────── */
-
-.todayDotValue {
+.tiOppEv {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  background: rgba(27,49,72,0.4);
+  padding: 2px 8px;
+  border-radius: 6px;
 }
 
-.todayDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+/* Changes section */
+.tiOppChanges {
+  background: rgba(5,16,27,0.5);
+  border-left: 2px solid var(--line);
+  padding: 8px 12px;
+  border-radius: 0 6px 6px 0;
+}
+
+.tiOppChangesLabel {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.tiOppChanges ul {
+  margin: 0;
+  padding: 0 0 0 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tiOppChanges li {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* Brief button */
+.tiOppBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+  text-decoration: none;
+  padding: 10px 14px;
+  background: rgba(54,193,119,0.1);
+  border: 1px solid rgba(54,193,119,0.25);
+  border-radius: 8px;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.tiOppBtn:hover { background: rgba(54,193,119,0.18); border-color: rgba(54,193,119,0.4); }
+
+/* ── Strong Signals ──────────────────────────────────────────────────────── */
+
+.tiSignalsSection {
+  padding: 28px 32px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tiSignalsRow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tiSignalPanel {
+  padding: 16px;
+  border-right: 1px solid var(--line);
+}
+
+.tiSignalPanel:last-child { border-right: none; }
+
+.tiSignalPanelHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tiSignalPanelHeader h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.tiSignalMore {
+  font-size: 11px;
+  color: var(--blue);
+  text-decoration: none;
+  white-space: nowrap;
   flex-shrink: 0;
 }
 
-.todayDotgreen { background: var(--green); }
-.todayDotorange { background: var(--orange); }
-.todayDotred { background: var(--red); }
-.todayDotneutral { background: var(--muted); }
+.tiSignalMore:hover { text-decoration: underline; }
 
-/* ── Why Recommended ───────────────────────────────────────────────────────── */
-
-.todayWhySection {
-  background: rgba(9, 23, 37, 0.6);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 24px 28px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  align-items: center;
-}
-
-/* ── Hero Action Buttons ───────────────────────────────────────────────────── */
-
-.todayHeroActionBtns {
-  display: grid;
-  gap: 10px;
-}
-
-.todayBriefBtn {
-  background: var(--green);
-  color: #fff !important;
-  border-color: var(--green);
-  font-size: 15px;
-  font-weight: 600;
-  padding: 13px 20px;
-  justify-content: center;
-  gap: 8px;
-}
-
-.todayBriefBtn:hover { opacity: 0.88; }
-
-.todayIdeaCheckBtn {
-  font-size: 14px;
-  justify-content: center;
-  padding: 12px 20px;
-  gap: 8px;
-}
-
-.todaySavePlanBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: transparent;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  color: var(--muted);
-  font-size: 13px;
-  padding: 10px 16px;
-  cursor: pointer;
-  width: 100%;
-  transition: border-color 0.15s, color 0.15s;
-}
-
-.todaySavePlanBtn:hover {
-  border-color: var(--blue);
-  color: var(--text);
-}
-
-.todayWhyList {
+.tiSignalList {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: 10px;
-}
-
-.todayWhyItem {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.todayWhyCheck {
-  color: var(--green);
-  font-size: 16px;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-/* ── Section Titles ────────────────────────────────────────────────────────── */
-
-.todaySectionTitle {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0 0 16px;
-  color: var(--text);
-}
-
-/* ── Two-column layout ─────────────────────────────────────────────────────── */
-
-.todayTwoCol {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-}
-
-/* ── Secondary Opportunities ───────────────────────────────────────────────── */
-
-.todaySecondarySection {
-  display: grid;
-  gap: 16px;
-}
-
-.todaySecondaryHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.todaySecondaryHeader .todaySectionTitle {
-  margin: 0;
-}
-
-.todayLinkMore {
-  font-size: 13px;
-  color: var(--blue);
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.todayLinkMore:hover { text-decoration: underline; }
-
-.todaySecondaryList {
-  display: grid;
-  gap: 10px;
-}
-
-.todaySecondaryCard {
-  background: rgba(9, 23, 37, 0.7);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.todaySecondaryRank {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(47, 125, 246, 0.15);
-  border: 1px solid rgba(47, 125, 246, 0.3);
-  color: var(--blue);
-  font-size: 12px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.todaySecondaryBody {
-  flex: 1;
-  min-width: 0;
-  display: grid;
+  flex-direction: column;
   gap: 6px;
 }
 
-.todaySecondaryTitleRow {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.todaySecondaryScore {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--text);
-  flex-shrink: 0;
-}
-
-.todaySecondaryScore span {
-  font-size: 11px;
-  color: var(--muted);
-  font-weight: 400;
-}
-
-.todaySecondaryTitle {
-  font-size: 13px;
-  font-weight: 600;
-  margin: 0;
-  line-height: 1.4;
-  color: var(--text);
-}
-
-.todaySecondaryMeta {
+.tiSignalListItem {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  flex-wrap: wrap;
+  font-size: 12px;
 }
 
-.todaySecondaryReason {
-  font-size: 12px;
-  color: var(--muted);
-  margin: 0;
-  line-height: 1.4;
-  white-space: nowrap;
+.tiSignalTag {
+  color: var(--text);
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
 }
 
-.todaySecondaryBtn {
+.tiSignalCount {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.tiSignalEmpty {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Trend badges */
+.tiTrendUp {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  color: var(--muted);
-  text-decoration: none;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
   flex-shrink: 0;
-  transition: border-color 0.15s, color 0.15s;
 }
 
-.todaySecondaryBtn:hover {
-  border-color: var(--blue);
-  color: var(--blue);
+.tiTrendDown {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--red);
+  flex-shrink: 0;
 }
 
-.todayMoreOppBtn {
-  text-align: center;
-  justify-content: center;
-  font-size: 13px;
-  width: 100%;
-  margin-top: 4px;
+.tiTrendFlat {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  color: var(--muted);
+  flex-shrink: 0;
 }
 
-/* ── Evidence Panel ────────────────────────────────────────────────────────── */
-
-.todayEvidencePanel {
-  background: rgba(9, 23, 37, 0.7);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 24px 28px;
-  display: grid;
-  gap: 20px;
+.tiTrendStatus {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
 }
 
-.todayEvidenceGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
+.tiTrendStatus.rising { color: var(--green); }
+.tiTrendStatus.cooling, .tiTrendStatus.falling { color: var(--red); }
+.tiTrendStatus.stable { color: var(--muted); }
 
-.todayEvidenceBlock {
-  display: grid;
+/* Category list */
+.tiCategoryList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
 }
 
-.todayEvidenceBlockTitle {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.tiCategoryItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
 }
 
-.todayBigStat {
-  font-size: 28px;
+.tiCategoryRank {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: rgba(47,125,246,0.15);
+  color: var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
   font-weight: 700;
-  display: block;
+  flex-shrink: 0;
 }
 
-.todayBigStat.green { color: var(--green); }
-.todayBigStat.orange { color: var(--orange); }
-.todayBigStat.red { color: var(--red); }
-.todayBigStat.blue { color: var(--blue); }
-.todayBigStat.neutral { color: var(--text); }
-
-.todayEvidenceChartRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.todayEvidenceFooterRow {
-  display: flex;
-  gap: 20px;
-  font-size: 12px;
-  color: var(--muted);
-  border-top: 1px solid var(--line);
-  padding-top: 14px;
-  flex-wrap: wrap;
-}
-
-/* ── Quick Idea Check ──────────────────────────────────────────────────────── */
-
-.todayIdeaCheck {
-  background: rgba(9, 23, 37, 0.7);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 28px 32px;
-  display: grid;
-  gap: 12px;
-}
-
-.todayIdeaCheckIcon {
-  font-size: 22px;
-}
-
-.todayIdeaForm {
-  display: flex;
-  gap: 12px;
-  margin-top: 4px;
-}
-
-.todayIdeaInput {
+.tiCategoryName {
   flex: 1;
-  background: rgba(2, 10, 19, 0.8);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 12px 16px;
   color: var(--text);
-  font-size: 14px;
-  transition: border-color 0.15s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.todayIdeaInput:focus {
-  outline: none;
-  border-color: var(--blue);
-}
-
-.todayIdeaInput.error {
-  border-color: var(--red);
-}
-
-.todayIdeaInput::placeholder {
-  color: var(--muted);
-}
-
-.todayIdeaBtn {
+.tiCategoryVpd {
+  font-size: 11px;
+  color: var(--green);
   flex-shrink: 0;
-  background: var(--blue);
-  color: #fff;
-  border: none;
-  padding: 12px 20px;
 }
 
-.todayIdeaBtn:hover { opacity: 0.88; }
-
-.todayIdeaError {
-  font-size: 12px;
-  color: var(--red);
-  margin: 0;
-}
-
-/* ── Niche Changes ─────────────────────────────────────────────────────────── */
-
-.todayNicheSection {
-  display: grid;
-  gap: 16px;
-}
-
-.todayNicheGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-.todayNicheCard {
-  background: rgba(9, 23, 37, 0.7);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 20px 24px;
-  display: grid;
-  gap: 14px;
-}
-
-.todayNicheCardHeader {
+/* Comment insights */
+.tiCommentInsights {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
+  flex-direction: column;
+  gap: 7px;
 }
 
-.todayNichegreen .todayNicheCardHeader { color: var(--green); }
-.todayNichered .todayNicheCardHeader { color: var(--red); }
-
-.todayNicheList {
-  display: grid;
-  gap: 8px;
-}
-
-.todayNicheItem {
+.tiCommentInsightRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  font-size: 12px;
 }
 
-.todayNicheTag {
-  font-size: 14px;
+.tiCommentInsightRow span:first-child { color: var(--muted); }
+
+.tiCommentPct {
+  font-weight: 600;
   color: var(--text);
 }
 
-.todayNicheChange {
-  font-size: 14px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.todayNicheChange.green { color: var(--green); }
-.todayNicheChange.red { color: var(--red); }
-
-.todayNicheLink {
-  font-size: 12px;
+.tiCommentLink {
+  font-size: 11px;
   color: var(--blue);
   text-decoration: none;
   margin-top: 4px;
-  display: inline-block;
 }
 
-.todayNicheLink:hover { text-decoration: underline; }
+.tiCommentLink:hover { text-decoration: underline; }
 
-/* ── Data Evidence Footer ──────────────────────────────────────────────────── */
+/* ── Bottom Row ──────────────────────────────────────────────────────────── */
 
-.todayDataFooter {
+.tiBottomRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+/* ── Updates Panel ───────────────────────────────────────────────────────── */
+
+.tiUpdatesPanel {
+  padding: 24px 28px;
+  border-right: 1px solid var(--line);
+}
+
+.tiUpdatesPanelHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.tiUpdatesPanelHeader h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.tiUpdatesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tiUpdatesItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(27,49,72,0.5);
+}
+
+.tiUpdatesItem:last-child { border-bottom: none; }
+
+.tiUpdatesBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tiUpdatesLabel {
+  font-size: 13px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tiUpdatesMeta {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.tiUpdatesTime {
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+svg.green, .green { color: var(--green); }
+svg.blue, .blue { color: var(--blue); }
+svg.muted, .muted-icon { color: var(--muted); }
+
+/* ── Jobs Panel ──────────────────────────────────────────────────────────── */
+
+.tiJobsPanel {
+  padding: 24px 28px;
+}
+
+.tiJobsPanelHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.tiJobsPanelHeader h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.tiJobsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tiJobsItem {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(27,49,72,0.5);
+}
+
+.tiJobsItem:last-child { border-bottom: none; }
+
+.tiJobsItemBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tiJobsName {
+  font-size: 13px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tiJobsNext {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.tiJobsPurpose {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(47,125,246,0.12);
+  color: var(--blue);
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tiJobsPurpose.discovery { background: rgba(155,108,255,0.12); color: #9b6cff; }
+.tiJobsPurpose.pulse { background: rgba(47,125,246,0.12); color: var(--blue); }
+.tiJobsPurpose.refresh { background: rgba(54,193,119,0.12); color: var(--green); }
+.tiJobsPurpose.decision { background: rgba(245,158,46,0.12); color: var(--orange); }
+.tiJobsPurpose.competitor { background: rgba(231,93,93,0.12); color: var(--red); }
+
+.tiJobsSummary {
+  margin-top: 12px;
   font-size: 12px;
   color: var(--muted);
-  padding: 12px 0;
   border-top: 1px solid var(--line);
-  flex-wrap: wrap;
+  padding-top: 10px;
 }
 
-/* ── Skeleton loading ──────────────────────────────────────────────────────── */
+/* ── Status Bar ──────────────────────────────────────────────────────────── */
 
-.skeleton {
-  background: linear-gradient(90deg, rgba(27, 49, 72, 0.6) 25%, rgba(27, 49, 72, 0.9) 50%, rgba(27, 49, 72, 0.6) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
-  border-radius: 8px;
-}
-
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-.todaySkeleton {
-  padding: 28px 32px;
-  display: grid;
-  gap: 24px;
-}
-
-.todayHeroSkel {
-  height: 200px;
-  border-radius: 16px;
-}
-
-.todayMetricStripSkel {
+.tiStatusBar {
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: 0;
+  padding: 10px 32px;
+  background: rgba(5,16,27,0.7);
+  border-top: 1px solid var(--line);
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-.todayMetricSkel {
-  flex: 1;
-  height: 72px;
+.tiStatusBar::-webkit-scrollbar { display: none; }
+
+.tiStatusItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  padding-right: 20px;
+  margin-right: 20px;
+  border-right: 1px solid var(--line);
+  flex-shrink: 0;
 }
 
-.todaySectionSkel {
-  height: 160px;
+.tiStatusItem:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+
+.tiStatusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-/* ── Error / Empty States ──────────────────────────────────────────────────── */
+.tiStatusDot.live { background: var(--green); box-shadow: 0 0 4px var(--green); }
+.tiStatusDot.waiting { background: var(--muted); }
 
-.todayError,
-.todayEmpty {
-  padding: 48px 32px;
-  display: grid;
+.tiStatusLabel {
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.tiStatusLabel.live { color: var(--green); }
+.tiStatusLabel.waiting { color: var(--muted); }
+
+.tiStatusTime {
+  margin-left: auto;
+  color: var(--muted);
+  border-right: none;
+}
+
+/* ── Loading / Error ─────────────────────────────────────────────────────── */
+
+.tiLoading,
+.tiError {
+  padding: 64px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 16px;
-  justify-items: start;
-}
-
-.todayEmpty h2 {
-  margin: 0;
-  font-size: 20px;
-}
-
-.todayEmpty p {
   color: var(--muted);
-  margin: 0;
-  max-width: 480px;
-  line-height: 1.55;
+  font-size: 14px;
+  text-align: center;
 }
 
-/* ── Shared helpers ────────────────────────────────────────────────────────── */
+/* ── Responsive ──────────────────────────────────────────────────────────── */
 
-.todayMuted {
-  color: var(--muted);
-  font-size: 13px;
-  margin: 0;
+@media (max-width: 1200px) {
+  .tiOppGrid { grid-template-columns: 1fr 1fr; }
+  .tiSignalsRow { grid-template-columns: repeat(3, 1fr); }
+  .tiSignalsRow .tiSignalPanel:nth-child(3) { border-right: none; }
+  .tiSignalsRow .tiSignalPanel:nth-child(n+4) { border-top: 1px solid var(--line); }
+}
+
+@media (max-width: 900px) {
+  .tiMainGrid { grid-template-columns: 1fr; }
+  .tiChartSection { border-right: none; }
+  .tiAfterJobs { border-top: 1px solid var(--line); }
+  .tiOppGrid { grid-template-columns: 1fr; }
+  .tiSignalsRow { grid-template-columns: 1fr 1fr; }
+  .tiBottomRow { grid-template-columns: 1fr; }
+  .tiUpdatesPanel { border-right: none; border-bottom: 1px solid var(--line); }
 }

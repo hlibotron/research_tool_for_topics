@@ -593,6 +593,7 @@
 .statusPillDs.completed  { background: rgba(21,153,87,.1);   color: var(--green); }
 .statusPillDs.failed     { background: rgba(220,38,38,.1);   color: var(--red); }
 .statusPillDs.stopped    { background: rgba(100,116,139,.1); color: var(--muted); }
+.statusPillDs.skipped    { background: rgba(234,179,8,.1);   color: #ca8a04; }
 .statusPillDs.unknown    { background: rgba(100,116,139,.1); color: var(--muted); }
 
 .pipelineSteps {

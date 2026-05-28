@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
   Activity,
@@ -36,13 +36,14 @@ import {
 import './styles.css';
 import { ToastContext, navigateTo, Link, api, usePolling } from './lib/shared.jsx';
 import { compactNumber, percentValue, formatLabel, actionTone, trendTone, confidenceTone, numberFmt } from './lib/formatters.js';
-import TodayPage from './pages/TodayPage.jsx';
-import OpportunitiesPage from './pages/OpportunitiesPage.jsx';
-import IdeaLabPage from './pages/IdeaLabPage.jsx';
-import TrendRadarPage from './pages/TrendRadarPage.jsx';
-import SummaryPage from './pages/SummaryPage.jsx';
-import BriefPage from './pages/BriefPage.jsx';
-import DataSyncPage from './pages/DataSyncPage.jsx';
+const TodayPage = lazy(() => import('./pages/TodayPage.jsx'));
+const OpportunitiesPage = lazy(() => import('./pages/OpportunitiesPage.jsx'));
+const IdeaLabPage = lazy(() => import('./pages/IdeaLabPage.jsx'));
+const TrendRadarPage = lazy(() => import('./pages/TrendRadarPage.jsx'));
+const SummaryPage = lazy(() => import('./pages/SummaryPage.jsx'));
+const BriefPage = lazy(() => import('./pages/BriefPage.jsx'));
+const DataSyncPage = lazy(() => import('./pages/DataSyncPage.jsx'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'));
 import './styles/theme.css';
 
 const reportNumberFmt = new Intl.NumberFormat('en-US', {
@@ -182,6 +183,7 @@ function Shell({ active, children, quota: quotaProp }) {
           <Link className={active === 'jobs' ? 'active' : ''} href="/jobs"><ClipboardList size={14} style={{ opacity: 0.6 }} />Оновлення даних</Link>
           <Link className={active === 'reports' ? 'active' : ''} href="/reports"><FileText size={14} style={{ opacity: 0.6 }} />Reports</Link>
           <Link className={active === 'llm' ? 'active' : ''} href="/llm"><Bot size={14} style={{ opacity: 0.6 }} />LLM</Link>
+          <Link className={active === 'settings' ? 'active' : ''} href="/settings"><Settings size={14} style={{ opacity: 0.6 }} />Налаштування</Link>
         </nav>
         <div className="sidebarBottom">
           <button className="themeToggle" type="button" onClick={toggleTheme} aria-label="Перемкнути тему">
@@ -313,7 +315,7 @@ function DashboardPage() {
         <section className="panel">
           <h2>What changed?</h2>
           <div className="insightList compact">
-            <Insight icon={<TrendingUp size={17} />} tone="green" text={best ? `${best.topic || best.title} is the strongest current production candidate.` : 'No confirmed production candidate yet.'} />
+            <Insight icon={<TrendingUp size={17} />} tone="green" text={best ? `${best.title || best.topic} is the strongest current production candidate.` : 'No confirmed production candidate yet.'} />
             <Insight icon={<Hash size={17} />} tone="blue" text={best?.hashtags?.length ? `${best.hashtags.slice(0, 3).join(', ')} should be tested with this idea.` : 'Hashtag evidence is incomplete for the current top idea.'} />
             <Insight icon={<Play size={17} />} tone="orange" text={best ? `${formatLabel(best.recommendedFormat)} is the recommended format.` : 'Format recommendation needs more data.'} />
             <Insight icon={<Gauge size={17} />} tone={best?.confidence === 'high' ? 'green' : 'orange'} text={best ? `Confidence is ${best.confidence}; evidence comes from ${best.dataHealth?.videosAnalyzed || 0} videos and ${best.dataHealth?.sourcesCount || 0} sources.` : 'Confidence is unavailable until opportunities are generated.'} />
@@ -450,7 +452,7 @@ function OpportunityCard({ opportunity }) {
         </div>
         <OpportunityScoreBadge opportunity={opportunity} />
       </div>
-      <h3>{opportunity.topic || opportunity.title}</h3>
+      <h3>{opportunity.title || opportunity.topic}</h3>
       <p>{opportunity.whyRecommended?.[0] || opportunity.suggested_angle}</p>
       <div className="tagList">
         {(opportunity.hashtags || []).slice(0, 4).map((tag) => <span key={tag}>{tag}</span>)}
@@ -3806,6 +3808,7 @@ function App() {
   else if (route.path === '/reports') page = <ReportsPage route={route} />;
   else if (route.path === '/llm/reports') page = <LlmReportsPage />;
   else if (route.path === '/llm') page = <LlmPage />;
+  else if (route.path === '/settings') page = <Shell active="settings"><SettingsPage /></Shell>;
   else if (route.path === '/') page = <Shell active="today"><TodayPage /></Shell>;
   else page = <DashboardPage />;
 
@@ -3813,7 +3816,9 @@ function App() {
     <ToastContext.Provider value={showToast}>
       <ThemeContext.Provider value={{ theme, toggleTheme }}>
         <QuotaContext.Provider value={quotaCtxValue}>
-          {page}
+          <Suspense fallback={<div className="routeView" style={{ padding: 40, color: 'var(--muted)' }}>Завантаження…</div>}>
+            {page}
+          </Suspense>
           <ToastMessage toast={toast} />
         </QuotaContext.Provider>
       </ThemeContext.Provider>

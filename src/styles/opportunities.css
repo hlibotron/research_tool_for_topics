@@ -604,3 +604,100 @@
 }
 
 .opp-footer-item strong { color: var(--text); font-weight: 600; }
+
+/* ── Diagnostics Banner ─────────────────────────────────────────────────────── */
+
+.opp-diagnostics {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(47, 125, 246, 0.06);
+  border: 1px solid rgba(47, 125, 246, 0.2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+}
+
+.opp-diagnostics-warn {
+  background: rgba(245, 158, 46, 0.07);
+  border-color: rgba(245, 158, 46, 0.3);
+}
+
+.opp-diag-icon { color: var(--blue); flex-shrink: 0; margin-top: 1px; }
+.opp-diag-icon-warn { color: var(--orange); flex-shrink: 0; margin-top: 1px; }
+
+.opp-diag-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+
+.opp-diag-meta {
+  display: flex;
+  gap: 16px;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+.opp-diag-meta span { display: flex; align-items: center; gap: 4px; }
+
+.opp-diag-warnings {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.opp-diag-warnings li {
+  color: var(--orange);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.opp-diagnostics-warn .opp-diag-warnings li { color: var(--orange); }
+
+/* ── LLM Synthesis Panel ────────────────────────────────────────────────────── */
+
+.opp-llm-panel {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(9, 23, 37, 0.6);
+}
+
+.opp-llm-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+}
+
+.opp-llm-toggle:hover { background: rgba(255,255,255,0.03); }
+
+.opp-llm-toggle svg:first-child { color: var(--blue); }
+.opp-llm-toggle span { flex: 1; }
+.opp-llm-toggle svg:last-child { color: var(--muted); flex-shrink: 0; }
+
+.opp-llm-body {
+  border-top: 1px solid var(--line);
+  padding: 20px;
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.opp-llm-text {
+  margin: 0;
+  font-family: inherit;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
