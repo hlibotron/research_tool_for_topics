@@ -1,0 +1,1 @@
+import{j as e}from"./vendor-react-BjJYZst6.js";function t({children:s,className:a="",...n}){return e.jsx("section",{className:`panel ${a}`,...n,children:s})}function o({children:s,tone:a="neutral",className:n=""}){return e.jsx("span",{className:`pill ${a} ${n}`,children:s})}export{o as B,t as C};

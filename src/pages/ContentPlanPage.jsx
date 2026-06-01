@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, useContext, useCallback } 
 import {
   Plus, Download, Sparkles, Bell, Search, ChevronDown, ChevronLeft, ChevronRight,
   Calendar, FileText, Layers, CheckSquare, Filter, Info, Clock, AlertTriangle,
-  Megaphone, X, MoreHorizontal, ListChecks,
+  Megaphone, X, MoreHorizontal, ListChecks, Trash2,
 } from 'lucide-react';
 import { api, usePolling, Link, ToastContext } from '../lib/shared.jsx';
 import '../styles/content-plan.css';
@@ -49,6 +49,7 @@ const PRIORITY_OPTIONS = [
 
 const SOURCE_OPTIONS = [
   { key: 'all', label: 'Всі джерела' },
+  { key: 'backlog', label: 'Backlog ідей' },
   { key: 'opportunities', label: 'Opportunities' },
   { key: 'idea_lab', label: 'Idea Lab' },
   { key: 'competitors', label: 'Competitors' },
@@ -90,6 +91,7 @@ const FORMAT_LABEL = {
 const SOURCE_LABEL = {
   opportunities: 'Opportunities', idea_lab: 'Idea Lab', competitors: 'Competitors',
   trend_radar: 'Trend Radar', manual: 'Manual', summary: 'Summary',
+  backlog: 'Backlog ідей',
 };
 
 const DIFFICULTY_LABEL = { easy: 'Легка', medium: 'Середня', hard: 'Складна' };
@@ -625,7 +627,7 @@ function PublishedPanel({ items, onSelect, onShowAll }) {
 
 // ── Detail drawer ────────────────────────────────────────────────────────────
 
-function DetailDrawer({ item, onClose, onChecklist, onStatus }) {
+function DetailDrawer({ item, onClose, onChecklist, onStatus, onDelete }) {
   if (!item) return null;
   return (
     <div className="cpDrawerOverlay" onClick={onClose}>
@@ -635,7 +637,15 @@ function DetailDrawer({ item, onClose, onChecklist, onStatus }) {
             <h3>{item.title}</h3>
             <small>{FORMAT_LABEL[item.format] || item.format} · {SOURCE_LABEL[item.source] || item.source}</small>
           </div>
-          <button type="button" onClick={onClose}><X size={16} /></button>
+          <div className="cpDrawerHeaderActions">
+            <button
+              type="button"
+              className="cpDrawerDelete"
+              title="Видалити з плану"
+              onClick={() => onDelete?.(item)}
+            ><Trash2 size={16} /></button>
+            <button type="button" onClick={onClose} aria-label="Закрити"><X size={16} /></button>
+          </div>
         </header>
         <section className="cpDrawerMeta">
           <div><span>Статус</span><strong>{STATUS_OPTIONS.find((s) => s.key === item.status)?.label || item.status}</strong></div>
@@ -677,6 +687,15 @@ function DetailDrawer({ item, onClose, onChecklist, onStatus }) {
               >{s.label}</button>
             ))}
           </div>
+        </section>
+        <section className="cpDrawerDangerZone">
+          <h4>Небезпечна зона</h4>
+          <button type="button" className="cpDeleteButton" onClick={() => onDelete?.(item)}>
+            <Trash2 size={14} />Видалити з плану
+          </button>
+          <p className="cpDeleteHint">
+            Ідея/тема буде прибрана з плану. Якщо її було додано з Backlog, посилання повернеться на сторінку Backlog.
+          </p>
         </section>
       </aside>
     </div>
@@ -1031,6 +1050,28 @@ export default function ContentPlanPage() {
     setActiveItem({ ...activeItem, status: newStatus });
   }, [activeItem, handleMove]);
 
+  const handleDelete = useCallback(async (item) => {
+    if (!item) return;
+    if (!window.confirm(`Видалити «${item.title}» з плану контенту? Дію не можна скасувати.`)) return;
+    try {
+      const res = await api('/api/content-plan/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: item.id }),
+      });
+      setActiveItem(null);
+      showToast?.(
+        res?.backlog_unlinked
+          ? 'Видалено з плану. Ідею повернуто на сторінку Backlog.'
+          : 'Видалено з плану.',
+        'green',
+      );
+      reload();
+    } catch (e) {
+      showToast?.(`Помилка видалення: ${e.message || e}`, 'red');
+    }
+  }, [reload, showToast]);
+
   const handleCreate = useCallback(async (payload) => {
     try {
       await api('/api/content-plan/create', {
@@ -1163,6 +1204,7 @@ export default function ContentPlanPage() {
         onClose={() => setActiveItem(null)}
         onChecklist={handleChecklistToggle}
         onStatus={handleStatusChange}
+        onDelete={handleDelete}
       />
       <AddIdeaModal
         open={addIdeaOpen}

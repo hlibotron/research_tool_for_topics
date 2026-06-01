@@ -253,6 +253,21 @@
 }
 .opp-hero-badge-zap { color: var(--orange); }
 
+.opp-hero-uncalibrated {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  max-width: 100%;
+  padding: 6px 10px;
+  border: 1px solid rgba(245, 158, 46, 0.35);
+  border-radius: 8px;
+  color: var(--orange);
+  background: rgba(245, 158, 46, 0.08);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .opp-hero-title {
   font-size: 22px;
   font-weight: 700;
@@ -545,11 +560,17 @@
 }
 .opp-board-configure:hover { border-color: var(--muted); }
 
+.opp-board-grid-scroll {
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
 .opp-board-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(240px, 1fr));
   gap: 14px;
   align-items: start;
+  min-width: 1510px;
 }
 
 /* ── Board Column ───────────────────────────────────────────────────────────── */
@@ -563,6 +584,12 @@
   border: 1px solid var(--line);
   border-radius: 14px;
   min-height: 200px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.opp-board-column.is-drag-over {
+  border-color: var(--blue);
+  background: rgba(47, 125, 246, 0.08);
 }
 
 .opp-board-column-header {
@@ -583,6 +610,7 @@
   flex-shrink: 0;
 }
 .opp-board-column-dot-green  { background: var(--green); }
+.opp-board-column-dot-cyan   { background: #0fb8b8; }
 .opp-board-column-dot-orange { background: var(--orange); }
 .opp-board-column-dot-blue   { background: var(--blue); }
 .opp-board-column-dot-purple { background: var(--purple, #6c50f6); }
@@ -638,13 +666,14 @@
   background: var(--card-elev, rgba(255, 255, 255, 0.02));
   border: 1px solid var(--line);
   border-radius: 11px;
-  cursor: pointer;
+  cursor: grab;
   transition: border-color 0.15s, transform 0.05s;
   outline: none;
 }
 .opp-board-card:hover { border-color: rgba(47, 125, 246, 0.35); }
 .opp-board-card:focus-visible { border-color: var(--blue); }
 .opp-board-card:active { transform: translateY(1px); }
+.opp-board-card:active { cursor: grabbing; }
 
 .opp-board-card-title {
   font-size: 13px;
@@ -1069,14 +1098,13 @@
 
 .opp-skeleton-board {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(220px, 1fr));
   gap: 14px;
 }
 
 /* ── Responsive ─────────────────────────────────────────────────────────────── */
 
 @media (max-width: 1280px) {
-  .opp-board-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
   .opp-skeleton-board { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 }
 

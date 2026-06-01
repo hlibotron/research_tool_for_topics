@@ -78,7 +78,7 @@ function TableEmpty({ tab, isFiltered, onResetFilters }) {
   );
 }
 
-function StandardTrendRows({ items }) {
+function StandardTrendRows({ items, onOpenTopic }) {
   return items.map((item) => {
     const competition = competitionMeta(item.competitionLevel);
     const subtitleText = item.subtitle && item.label && String(item.subtitle).trim() !== String(item.label).trim()
@@ -86,10 +86,11 @@ function StandardTrendRows({ items }) {
       : '';
     const subtitlePrefix = item.type === 'topics' && subtitleText ? 'напр.: ' : '';
     return (
-      <tr key={`${item.type}-${item.id}`}>
+      <tr key={`${item.type}-${item.id}`} className={item.type === 'topics' ? 'trend-topic-clickable' : ''} onClick={item.type === 'topics' ? () => onOpenTopic?.(item) : undefined}>
         <td>
           <strong>{textOrMissing(item.label)}</strong>
           {subtitleText ? <small>{subtitlePrefix}{subtitleText}</small> : null}
+          {item.type === 'hashtags' && item.raw?.origins?.length ? <small>{item.raw.origins.map((origin) => <Badge key={origin} tone={origin === 'metadata_tag' ? 'blue' : 'green'}>{origin === 'metadata_tag' ? 'metadata tag' : 'visible hashtag'}</Badge>)}</small> : null}
         </td>
         <td><TrendDirectionBadge direction={item.direction} /></td>
         <td className={Number(item.demandGrowth) < 0 ? 'trend-negative' : Number(item.demandGrowth) > 0 ? 'trend-positive' : ''}>{percentOrMissing(item.demandGrowth)}</td>
@@ -103,11 +104,11 @@ function StandardTrendRows({ items }) {
   });
 }
 
-function TopicHashtagTable({ tab, items, filteredTotal, totalItems, isFiltered, onResetFilters }) {
+function TopicHashtagTable({ tab, items, filteredTotal, totalItems, isFiltered, onResetFilters, onOpenTopic }) {
   return (
     <Card className="trend-table">
       <div className="trend-table-header">
-        <h2>{tab === 'topics' ? 'Теми' : 'Хештеги'}</h2>
+        <h2>{tab === 'topics' ? 'Теми' : 'Теги / хештеги'}</h2>
         <span>{numberFmt.format(filteredTotal)} / {numberFmt.format(totalItems)}</span>
       </div>
       {!items.length ? <TableEmpty tab={tab} isFiltered={isFiltered} onResetFilters={onResetFilters} /> : (
@@ -125,7 +126,7 @@ function TopicHashtagTable({ tab, items, filteredTotal, totalItems, isFiltered, 
                 <th>Рекомендація</th>
               </tr>
             </thead>
-            <tbody><StandardTrendRows items={items} /></tbody>
+            <tbody><StandardTrendRows items={items} onOpenTopic={onOpenTopic} /></tbody>
           </table>
         </div>
       )}
@@ -152,21 +153,52 @@ function VideoRows({ items, isFiltered, onResetFilters }) {
         return (
           <article className="trend-video-row" key={`${item.type}-${item.id}`}>
             <div className="trend-video-thumb">
-              {thumbnail ? <img src={thumbnail} alt="" /> : <ImageIcon size={20} />}
+              {thumbnail ? <a href={raw.url} target="_blank" rel="noreferrer"><img src={thumbnail} alt="" /></a> : <ImageIcon size={20} />}
             </div>
             <div className="trend-video-main">
-              <strong>{textOrMissing(item.label)}</strong>
+              <strong>{raw.url ? <a href={raw.url} target="_blank" rel="noreferrer">{textOrMissing(item.label)}</a> : textOrMissing(item.label)}</strong>
               <span>{textOrMissing(raw.channel || raw.channel_title || item.subtitle)}</span>
             </div>
             <div><span>Перегляди</span><strong>{compactOrMissing(raw.views)}</strong></div>
             <div><span>Опубліковано</span><strong>{textOrMissing(raw.publishedAt || raw.published_at || item.updatedAt)}</strong></div>
-            <div><span>Швидкість</span><strong>{hasNumber(raw.viewsVelocity || raw.velocity || raw.views_per_day) ? `${compactNumber(raw.viewsVelocity || raw.velocity || raw.views_per_day)}/день` : NO_DATA}</strong></div>
+            <div><span>VPH</span><strong>{hasNumber(raw.viewsPerHour) ? `${compactNumber(raw.viewsPerHour)}/год` : NO_DATA}</strong><small>{raw.metricSource || 'estimated'}</small></div>
+            <div><span>Outlier</span><strong>{hasNumber(raw.outlierRatio) ? `${Number(raw.outlierRatio).toFixed(1)}x` : NO_DATA}</strong></div>
             <div><span>Мова</span><strong>{lang && lang !== 'unknown' ? <LangBadge lang={lang} /> : NO_DATA}</strong></div>
             <RecommendationBadge item={item} />
           </article>
         );
       })}
     </section>
+  );
+}
+
+function KeywordRows({ items, isFiltered, onResetFilters }) {
+  return (
+    <Card className="trend-table">
+      <div className="trend-table-header"><h2>Ключові слова · UA proxy</h2><span>{numberFmt.format(items.length)}</span></div>
+      {!items.length ? <TableEmpty tab="keywords" isFiltered={isFiltered} onResetFilters={onResetFilters} /> : (
+        <div className="tableScroll">
+          <table>
+            <thead><tr><th>Ключове слово</th><th>UA opportunity proxy</th><th>VPH</th><th>Відео</th><th>Канали</th><th>Складові</th><th>Статус</th></tr></thead>
+            <tbody>{items.map((item) => {
+              const raw = item.raw || {};
+              const breakdown = raw.proxyBreakdown || {};
+              return (
+                <tr key={`${item.type}-${item.id}`}>
+                  <td><strong>{item.label}</strong>{raw.proxyIncomplete ? <small>incomplete data · це proxy, не search volume</small> : null}</td>
+                  <td><strong>{hasNumber(raw.opportunityProxy) ? `${Math.round(raw.opportunityProxy)}/100` : NO_DATA}</strong></td>
+                  <td>{hasNumber(raw.viewsVelocity) ? `${compactNumber(raw.viewsVelocity)}/год` : NO_DATA}</td>
+                  <td>{numberOrMissing(raw.usageCount)}</td>
+                  <td>{numberOrMissing(raw.channelsAnalyzed)}</td>
+                  <td><small>D {breakdown.demand ?? '—'} · M {breakdown.momentum ?? '—'} · C {breakdown.competition_advantage ?? '—'} · UA {breakdown.local_fit ?? '—'} · intent {breakdown.comment_intent ?? '—'}</small></td>
+                  <td><TrendDirectionBadge direction={item.direction} /></td>
+                </tr>
+              );
+            })}</tbody>
+          </table>
+        </div>
+      )}
+    </Card>
   );
 }
 
@@ -232,7 +264,7 @@ function CategoryRows({ items, isFiltered, onResetFilters }) {
   );
 }
 
-export default function TrendTable({ tab, items, totalItems, isFiltered, onResetFilters }) {
+export default function TrendTable({ tab, items, totalItems, isFiltered, onResetFilters, onOpenTopic }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   useEffect(() => setVisibleCount(PAGE_SIZE), [tab, totalItems, isFiltered]);
   const visibleItems = useMemo(() => items.slice(0, visibleCount), [items, visibleCount]);
@@ -240,9 +272,10 @@ export default function TrendTable({ tab, items, totalItems, isFiltered, onReset
 
   let content;
   if (tab === 'videos') content = <VideoRows items={visibleItems} isFiltered={isFiltered} onResetFilters={onResetFilters} />;
+  else if (tab === 'keywords') content = <KeywordRows items={visibleItems} isFiltered={isFiltered} onResetFilters={onResetFilters} />;
   else if (tab === 'formats') content = <FormatRows items={visibleItems} isFiltered={isFiltered} onResetFilters={onResetFilters} />;
   else if (tab === 'categories') content = <CategoryRows items={visibleItems} isFiltered={isFiltered} onResetFilters={onResetFilters} />;
-  else content = <TopicHashtagTable tab={tab} items={visibleItems} filteredTotal={items.length} totalItems={totalItems} isFiltered={isFiltered} onResetFilters={onResetFilters} />;
+  else content = <TopicHashtagTable tab={tab} items={visibleItems} filteredTotal={items.length} totalItems={totalItems} isFiltered={isFiltered} onResetFilters={onResetFilters} onOpenTopic={onOpenTopic} />;
 
   return (
     <div className="trend-table-wrap">

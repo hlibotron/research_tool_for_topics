@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useContext, useState, useMemo } from 'react';
 import { RefreshCw, Sparkles, ChevronDown, ChevronUp, Brain, AlertTriangle, BarChart2 } from 'lucide-react';
-import { usePolling, api, navigateTo, Link } from '../lib/shared.jsx';
+import { usePolling, api, navigateTo, Link, ToastContext } from '../lib/shared.jsx';
 import { SkeletonBlock } from '../components/common/Skeleton.jsx';
 import EmptyState from '../components/common/EmptyState.jsx';
 import OpportunityFilterBar from '../components/opportunities/OpportunityFilterBar.jsx';
@@ -82,24 +82,28 @@ function PageSkeleton() {
       <SkeletonBlock height={48} radius={10} />
       <SkeletonBlock height={260} radius={16} />
       <div className="opp-skeleton-board">
-        {[0, 1, 2, 3, 4].map(i => <SkeletonBlock key={i} height={420} radius={14} />)}
+        {[0, 1, 2, 3, 4, 5].map(i => <SkeletonBlock key={i} height={420} radius={14} />)}
       </div>
     </>
   );
 }
 
 export default function OpportunitiesPage() {
+  const showToast = useContext(ToastContext);
   const [days, setDays] = useState(7);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [query] = useState('');
   const [evidenceId, setEvidenceId] = useState(null);
+  const [boardOverrides, setBoardOverrides] = useState({});
 
   const { data, error, loading, reload } = useOpportunities(days);
 
   const normalized = useMemo(() => {
     const items = data?.opportunities || [];
-    return items.map(normalizeOpportunity).filter(Boolean);
-  }, [data]);
+    return items.map(normalizeOpportunity).filter(Boolean).map((item) => (
+      boardOverrides[item.id] ? { ...item, column: boardOverrides[item.id] } : item
+    ));
+  }, [data, boardOverrides]);
 
   const marketOptions = useMemo(() => {
     const set = new Set();
@@ -127,6 +131,23 @@ export default function OpportunitiesPage() {
   function handleCreateBrief(id) {
     const briefId = id || hero?.id;
     navigateTo(briefId ? `/brief?id=${encodeURIComponent(briefId)}` : '/brief');
+  }
+
+  async function handleMoveOpportunity(id, column) {
+    const current = normalized.find((item) => item.id === id)?.column;
+    if (!current || current === column) return;
+    setBoardOverrides((overrides) => ({ ...overrides, [id]: column }));
+    try {
+      await api('/api/opportunities/board', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, column }),
+      });
+      showToast?.('Колонку можливості оновлено', 'green');
+    } catch (err) {
+      setBoardOverrides((overrides) => ({ ...overrides, [id]: current }));
+      showToast?.(`Не вдалося перемістити тему: ${err.message || err}`, 'red');
+    }
   }
 
   if (error) {
@@ -220,6 +241,7 @@ export default function OpportunitiesPage() {
               <OpportunityBoard
                 board={board}
                 total={filtered.length}
+                onMove={handleMoveOpportunity}
                 onShowEvidence={setEvidenceId}
                 onCreateBrief={handleCreateBrief}
               />

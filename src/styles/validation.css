@@ -1,0 +1,129 @@
+/* Shared idea-validation panel (Backlog modal + IdeaLab). Reuses backlog tone
+   and pill classes; only the layout pieces are defined here. */
+
+.validation-panel { display: flex; flex-direction: column; gap: 16px; }
+
+.validation-scores {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, 1fr)) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.validation-score-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--border, #e6e6ef);
+  border-radius: 12px;
+  background: var(--card-bg, #fff);
+}
+.validation-score-card > span { font-size: 12px; color: var(--muted, #888); }
+.validation-score-card > strong { font-size: 24px; line-height: 1.1; }
+.validation-score-card > strong > small { font-size: 13px; color: var(--muted, #888); font-weight: 500; }
+.validation-score-card > em { font-size: 11px; color: var(--muted, #888); font-style: normal; }
+.validation-score-card .tone-blue { color: #5a4ad1; }
+.validation-score-card .tone-green { color: #1f8049; }
+.validation-score-card .tone-orange { color: #b96d12; }
+.validation-score-card .tone-red { color: #b73c3c; }
+.validation-score-card .tone-neutral { color: var(--muted, #888); }
+
+.validation-actions { display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+
+.validation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 720px) { .validation-grid { grid-template-columns: 1fr; } }
+
+.validation-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+
+.validation-component-row {
+  display: grid;
+  grid-template-columns: 130px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 13px;
+}
+.validation-bar {
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+.validation-bar > span { display: block; height: 100%; background: #2f7df6; border-radius: 4px; }
+
+.validation-evidence-summary { font-size: 14px; margin: 0 0 8px; }
+.validation-evidence-list { list-style: none; margin: 8px 0 0; padding: 0; font-size: 12.5px; }
+.validation-evidence-list li { padding: 3px 0; border-bottom: 1px solid var(--border, #f0f0f4); }
+.validation-family {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(47, 125, 246, 0.12);
+  color: #2f5ed1;
+  margin-right: 6px;
+}
+
+.validation-gates { margin: 0; padding-left: 18px; font-size: 13px; }
+.validation-gates li { padding: 2px 0; color: #b96d12; }
+
+.validation-topic-main { font-weight: 600; font-size: 15px; margin: 0 0 8px; }
+.validation-topic p { font-size: 13px; margin: 4px 0; }
+
+.validation-pack-block { margin-bottom: 10px; }
+.validation-pack-block h4 { font-size: 12px; color: var(--muted, #888); margin: 0 0 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+.validation-pack-block ul { margin: 0; padding-left: 18px; font-size: 13px; }
+
+.validation-moments { display: flex; flex-direction: column; gap: 10px; }
+.validation-moment { border-left: 3px solid #2f7df6; padding-left: 10px; }
+.validation-moment-head { display: flex; gap: 8px; align-items: baseline; }
+.validation-moment-head strong { font-size: 13px; }
+.validation-moment-head span { font-size: 11px; color: var(--muted, #888); }
+.validation-moment p { font-size: 12.5px; margin: 2px 0; }
+
+.validation-script { margin: 6px 0; padding-left: 20px; font-size: 13px; }
+
+.validation-footer-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted, #888);
+  padding: 10px 12px;
+  border: 1px dashed var(--border, #e0e0ea);
+  border-radius: 10px;
+}
+
+/* Table cells (§9.1) */
+.backlog-evidence-cell { font-size: 12px; color: var(--muted, #777); white-space: nowrap; }
+.backlog-lane-cell { display: flex; align-items: center; gap: 6px; }
+.backlog-stale-badge,
+.backlog-concept-stale {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10.5px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(245, 158, 46, 0.15);
+  color: #b96d12;
+}
+.backlog-modal-dr-error {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(231, 93, 93, 0.12);
+  color: #b73c3c;
+  font-size: 13px;
+}

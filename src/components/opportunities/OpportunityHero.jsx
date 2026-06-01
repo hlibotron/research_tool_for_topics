@@ -44,6 +44,8 @@ export default function OpportunityHero({ item, onCreateBrief, onShowEvidence })
     : item.channelFit === 'good' ? 'blue'
     : item.channelFit === 'fair' ? 'orange'
     : item.channelFit === 'poor' ? 'red' : 'neutral';
+  const shootNow = item.action === 'shoot_now';
+  const statusLabel = shootNow ? 'Знімати зараз' : 'Потрібна перевірка';
 
   return (
     <section className="opp-hero">
@@ -57,12 +59,18 @@ export default function OpportunityHero({ item, onCreateBrief, onShowEvidence })
           <span>Найкраща можливість зараз</span>
           <Zap size={13} className="opp-hero-badge-zap" />
         </div>
+        {!item.predictionStatus?.calibrated && (
+          <div className="opp-hero-uncalibrated" title={item.predictionStatus?.disclosure || ''}>
+            <AlertTriangle size={13} />
+            <span>UNCALIBRATED: score є research-пріоритетом, не прогнозом успіху</span>
+          </div>
+        )}
 
         <h2 className="opp-hero-title">{item.title}</h2>
 
-        <button type="button" className="opp-hero-status" onClick={onCreateBrief} aria-label="Знімати зараз">
+        <button type="button" className="opp-hero-status" onClick={onCreateBrief} aria-label={statusLabel}>
           <PlayCircle size={16} />
-          <span>Знімати зараз</span>
+          <span>{statusLabel}</span>
         </button>
 
         <div className="opp-hero-summary">

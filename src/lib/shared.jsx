@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export const ToastContext = React.createContext(() => {});
 
@@ -42,22 +42,37 @@ export function usePolling(loader, deps = [], interval = 30000) {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const controllerRef = useRef(null);
+  const mountedRef = useRef(true);
 
   async function load() {
+    // Cancel any in-flight request before starting a new one — prevents stale
+    // responses from late requests overwriting fresh state when deps change fast.
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
     try {
       setError('');
-      setData(await loader());
+      const result = await loader(controller.signal);
+      if (controller.signal.aborted || !mountedRef.current) return;
+      setData(result);
     } catch (err) {
-      setError(err.message || String(err));
+      if (err?.name === 'AbortError' || controller.signal.aborted) return;
+      if (mountedRef.current) setError(err.message || String(err));
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted && mountedRef.current) setLoading(false);
     }
   }
 
   useEffect(() => {
+    mountedRef.current = true;
     load();
     const timer = window.setInterval(load, interval);
-    return () => window.clearInterval(timer);
+    return () => {
+      mountedRef.current = false;
+      window.clearInterval(timer);
+      controllerRef.current?.abort();
+    };
   }, deps); // eslint-disable-line react-hooks/exhaustive-deps
 
   return { data, error, loading, reload: load };

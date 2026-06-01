@@ -76,16 +76,16 @@ function buildEvidenceFromItem(item) {
     ? Math.round((commentIntentScore / commentIntentMax) * 100)
     : 0;
 
-  // 3. Competitor gap: derived from videos/channels counts + competition advantage score
+  // 3. Competitor coverage: show a gap only when the API measured one.
   const channels = Number(raw.channels || 0);
   const videos = Number(raw.videos || 0);
-  const competitionAdvantage = Number(raw.competitionAdvantageScore || 0);
-  const gapPercent = item.gapPercent || competitionAdvantage;
+  const gapPercent = item.gapPercent ?? null;
   const gapSummary = videos > 0 && channels > 0
     ? `Тема покривається ${videos} відео на ${channels} каналах. ${
-        competitionAdvantage >= 70 ? 'Конкуренція слабка — є простір зайти з якіснішим форматом.'
-          : competitionAdvantage >= 40 ? 'Конкуренція помірна — потрібен сильний angle або hook.'
-          : 'Конкуренція сильна — заходити лише з унікальною подачею.'
+        gapPercent == null ? 'Точний конкурентний gap ще не виміряно.'
+          : gapPercent >= 70 ? 'Конкуренція слабка — є простір зайти з якіснішим форматом.'
+            : gapPercent >= 40 ? 'Конкуренція помірна — потрібен сильний angle або hook.'
+              : 'Конкуренція сильна — заходити лише з унікальною подачею.'
       }`
     : '';
 
@@ -189,7 +189,7 @@ function EvidenceTab({ data, onSwitchTab }) {
         <button type="button" className="opp-modal-teaser" onClick={() => onSwitchTab('gap')}>
           <Target size={14} />
           <div>
-            <strong>Gap: {Math.round(data.competitorGap.gapPercent || 0)}%</strong>
+            <strong>{data.competitorGap.gapPercent == null ? 'Gap: не виміряно' : `Gap: ${Math.round(data.competitorGap.gapPercent)}%`}</strong>
             <span>{data.competitorGap.channels} каналів / {data.competitorGap.videos} відео</span>
           </div>
         </button>
@@ -237,7 +237,7 @@ function GapTab({ data }) {
   return (
     <div className="opp-modal-section">
       <div className="opp-modal-bignum">
-        <strong>Gap: {Math.round(gap.gapPercent || 0)}%</strong>
+        <strong>{gap.gapPercent == null ? 'Gap: не виміряно' : `Gap: ${Math.round(gap.gapPercent)}%`}</strong>
         <span>конкурентний розрив</span>
       </div>
       {gap.summary ? (
@@ -260,7 +260,7 @@ function GapTab({ data }) {
           <div className="opp-modal-action-cell">
             <Target size={13} />
             <span className="opp-modal-action-label">Competition advantage</span>
-            <strong>{Math.round(gap.gapPercent || 0)}/100</strong>
+            <strong>{gap.gapPercent == null ? '—' : `${Math.round(gap.gapPercent)}/100`}</strong>
           </div>
         </div>
       )}

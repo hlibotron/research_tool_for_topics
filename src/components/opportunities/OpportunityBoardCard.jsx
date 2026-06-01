@@ -12,6 +12,11 @@ export default function OpportunityBoardCard({ item, onShowEvidence, onCreateBri
 
   return (
     <article className="opp-board-card" onClick={handleCardClick} role="button" tabIndex={0}
+      draggable
+      onDragStart={(event) => {
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', item.id);
+      }}
       onKeyDown={e => { if (e.key === 'Enter') onShowEvidence(item.id); }}
     >
       <h4 className="opp-board-card-title">{item.title}</h4>
@@ -28,10 +33,12 @@ export default function OpportunityBoardCard({ item, onShowEvidence, onCreateBri
       )}
 
       <div className="opp-board-card-meta">
-        <span className="opp-board-card-meta-item">
-          <span className="opp-board-card-meta-label">Gap</span>
-          <strong>{item.gapPercent}%</strong>
-        </span>
+        {item.gapPercent != null && (
+          <span className="opp-board-card-meta-item">
+            <span className="opp-board-card-meta-label">Gap</span>
+            <strong>{item.gapPercent}%</strong>
+          </span>
+        )}
         {item.difficulty && (
           <span className="opp-board-card-meta-item">
             <span className={`opp-board-card-chip opp-chip-${item.difficulty}`}>{DIFFICULTY_LABEL[item.difficulty]}</span>

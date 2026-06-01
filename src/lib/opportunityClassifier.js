@@ -1,6 +1,7 @@
-export const COLUMN_KEYS = ['shoot_now', 'adapt', 'priority', 'high_potential', 'park'];
+export const COLUMN_KEYS = ['observe', 'shoot_now', 'adapt', 'priority', 'high_potential', 'park'];
 
 export const COLUMN_LABELS = {
+  observe: 'Наблюдати',
   shoot_now: 'Знімати зараз',
   adapt: 'Адаптувати',
   priority: 'Пріоритетно',
@@ -9,6 +10,7 @@ export const COLUMN_LABELS = {
 };
 
 export const COLUMN_ACCENTS = {
+  observe: 'cyan',
   shoot_now: 'green',
   adapt: 'orange',
   priority: 'blue',

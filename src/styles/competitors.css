@@ -557,6 +557,9 @@
   flex-direction: column;
   gap: 4px;
   margin-top: 6px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .cmMoverRow {
@@ -1144,3 +1147,103 @@
   .cmMainGrid { grid-template-columns: 1fr; }
   .cmBottomGrid { grid-template-columns: 1fr; }
 }
+
+/* ── Competitor parity additions ─────────────────────────────────────────── */
+
+.cmDash { color: var(--muted); }
+
+/* Sortable table headers */
+.cmVideosTable th.cmSortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.cmVideosTable th.cmSortable:hover { color: var(--text); }
+.cmSortHead { display: inline-flex; align-items: center; gap: 4px; }
+.cmSortIdle { opacity: 0.35; }
+.cmVideosTable th.cmSortable.active { color: var(--text); }
+
+/* Card count ("Показано X із Y") */
+.cmCardCount { color: var(--muted); font-size: 12px; }
+
+/* VPH cell + observed/estimated source badge */
+.cmVphCell { display: inline-flex; align-items: center; gap: 6px; }
+.cmVphSrc {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.cmVphSrc.observed { background: rgba(76, 178, 119, 0.16); color: #2f8f5b; }
+.cmVphSrc.estimated { background: rgba(120, 140, 180, 0.16); color: var(--muted); }
+
+/* Return-to-all-competitors button */
+.cmReturnAll {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: var(--card-bg, #fff);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 7px 12px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.cmReturnAll:hover { color: var(--text); }
+.cmReturnAll.active {
+  border-color: #6c8df5;
+  color: #6c8df5;
+  background: rgba(108, 141, 245, 0.08);
+  font-weight: 600;
+}
+
+/* Degraded data-health banner */
+.cmDataHealth {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(245, 166, 35, 0.12);
+  border: 1px solid rgba(245, 166, 35, 0.4);
+  color: #9a6a00;
+  font-size: 13px;
+}
+
+/* Monitoring coverage */
+.cmCoverageHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cmCoverageHead h2 { margin: 0; font-size: 15px; font-weight: 700; color: var(--text); }
+.cmCoverageSummary { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+.cmCoverageSearch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 8px;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+}
+.cmCoverageSearch input { border: 0; outline: 0; background: transparent; color: var(--text); width: 100%; font-size: 13px; }
+.cmCoverageTable td { font-size: 12px; }
+
+/* RSS status badges */
+.cmRssBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.cmRssBadge.green { background: rgba(76, 178, 119, 0.16); color: #2f8f5b; }
+.cmRssBadge.yellow { background: rgba(245, 166, 35, 0.18); color: #9a6a00; }
+.cmRssBadge.red { background: rgba(226, 92, 92, 0.16); color: #c0392b; }
+.cmRssBadge.gray { background: rgba(120, 140, 180, 0.16); color: var(--muted); }

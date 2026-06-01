@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { api } from '../../lib/shared.jsx';
 import { Copy, Download, CalendarPlus } from 'lucide-react';
 import { ToastContext } from '../../lib/shared.jsx';
 
@@ -86,8 +87,36 @@ export default function BriefActions({ brief }) {
     URL.revokeObjectURL(url);
   }
 
-  function addToContentPlan() {
-    showToast('Content plan backend не підключений', 'blue');
+  const addToContentPlan = async () => {
+    const notify = (msg, tone) => {
+      if (typeof showToast === 'function') showToast(msg, tone);
+      else window.alert(msg);
+    };
+    if (!brief || !brief.title) { notify('Бріф ще не готовий — нема чого додавати', 'red'); return; }
+    const score = Number(brief.opportunityScore || 0);
+    const payload = {
+      title: brief.title,
+      format: brief.recommendedFormat || 'long',
+      priority: score >= 70 ? 'high' : score >= 45 ? 'medium' : 'low',
+      source: 'opportunities',
+      status: 'brief_ready',
+      brief_status: 'ready',
+      note: brief.concept || '',
+      opportunity_id: brief.id || '',
+      effort_hours: 5,
+      requires_purchase: false,
+    };
+    try {
+      const res = await api('/api/content-plan/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res && res.ok === false) { notify('Не вдалося додати: ' + (res.error || 'помилка'), 'red'); return; }
+      notify('Бріф додано в план контенту', 'green');
+    } catch (e) {
+      notify('Не вдалося додати бріф у план: ' + ((e && e.message) || e), 'red');
+    }
   }
 
   return (

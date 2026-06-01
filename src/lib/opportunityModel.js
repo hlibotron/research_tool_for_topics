@@ -1,4 +1,4 @@
-import { classifyToColumn } from './opportunityClassifier.js';
+import { COLUMN_KEYS, classifyToColumn } from './opportunityClassifier.js';
 
 const CONFIDENCE_NUMERIC = { high: 90, medium: 65, low: 35 };
 
@@ -8,11 +8,11 @@ function toNumber(value, fallback = 0) {
 }
 
 function confidenceToNumber(value) {
-  if (value == null) return 65;
+  if (value == null) return 0;
   if (typeof value === 'number' && Number.isFinite(value)) {
     return value <= 1 ? Math.round(value * 100) : Math.round(value);
   }
-  return CONFIDENCE_NUMERIC[String(value).toLowerCase()] ?? 65;
+  return CONFIDENCE_NUMERIC[String(value).toLowerCase()] ?? 0;
 }
 
 function difficultyFromScore(item) {
@@ -81,21 +81,20 @@ function countEvidence(item) {
 
 function deriveScoreBreakdown(item) {
   const src = item.scoreBreakdown || item.score_breakdown || {};
-  const finalScore = toNumber(item.opportunityScore || item.opportunity_score, 0);
-  const demand = toNumber(item.demandGrowth ?? item.demand_growth ?? item.trendGrowth, 0);
-  const compLevel = item.competitionLevel || item.competition_level || item.competition || 'medium';
-  const compScore = compLevel === 'low' ? 90 : compLevel === 'high' ? 35 : 60;
-  const confidence = confidenceToNumber(item.confidence);
-  const channelFitScore = toNumber(item.channelFitScore ?? item.channel_fit_score, 65);
+  const measured = (key, legacyKey = key) => {
+    const value = src[key] ?? src[legacyKey];
+    return value == null ? null : Math.round(toNumber(value, 0));
+  };
 
   return {
-    velocity: Math.round(toNumber(src.velocity, Math.min(100, Math.max(0, 50 + demand / 4)))),
-    outlier: Math.round(toNumber(src.outlier, Math.min(100, Math.max(0, finalScore + 5)))),
-    evidence: Math.round(toNumber(src.evidence, confidence)),
-    engagement: Math.round(toNumber(src.engagement, Math.max(0, finalScore - 4))),
-    freshness: Math.round(toNumber(src.freshness, Math.max(0, finalScore - 10))),
-    channelFit: Math.round(toNumber(src.channelFit ?? src.channel_fit, channelFitScore)),
-    feasibility: Math.round(toNumber(src.feasibility, compScore)),
+    velocity: measured('velocity'),
+    outlier: measured('outlier'),
+    evidence: measured('evidence'),
+    engagement: measured('engagement'),
+    freshness: measured('freshness'),
+    commentIntent: measured('commentIntent', 'comment_intent'),
+    channelFit: measured('channelFit', 'channel_fit'),
+    feasibility: measured('feasibility'),
   };
 }
 
@@ -103,16 +102,14 @@ function deriveGapPercent(item) {
   if (item.gapPercent != null) return toNumber(item.gapPercent, 0);
   if (item.competitorGap?.gapPercent != null) return toNumber(item.competitorGap.gapPercent, 0);
   if (item.gap_percent != null) return toNumber(item.gap_percent, 0);
-  const comp = item.competitionLevel || item.competition_level || item.competition;
-  if (comp === 'low') return 70;
-  if (comp === 'high') return 30;
-  return 50;
+  return null;
 }
 
 function deriveNoPurchase(item) {
   if (typeof item.noPurchase === 'boolean') return item.noPurchase;
   if (typeof item.no_purchase === 'boolean') return item.no_purchase;
-  const assets = item.requiredAssets || item.required_assets || item.assets || [];
+  const assets = item.requiredAssets || item.required_assets || item.assets;
+  if (!Array.isArray(assets)) return undefined;
   const text = Array.isArray(assets) ? assets.join(' ').toLowerCase() : '';
   if (/купити|purchase|buy/.test(text)) return false;
   return true;
@@ -124,12 +121,9 @@ function deriveTrendDelta(item) {
 }
 
 function deriveDeadlineHours(item) {
-  if (item.deadlineHours != null) return toNumber(item.deadlineHours, 48);
-  if (item.deadline_hours != null) return toNumber(item.deadline_hours, 48);
-  const action = item.recommendedAction || item.suggestedAction || item.status || item.verdict;
-  if (action === 'shoot_now') return 48;
-  if (action === 'adapt') return 96;
-  return 168;
+  if (item.deadlineHours != null) return toNumber(item.deadlineHours, null);
+  if (item.deadline_hours != null) return toNumber(item.deadline_hours, null);
+  return null;
 }
 
 export function normalizeOpportunity(raw) {
@@ -166,6 +160,7 @@ export function normalizeOpportunity(raw) {
     market: raw.market || raw.niche || raw.cluster_label || null,
     gapPercent,
     noPurchase: deriveNoPurchase(raw),
+    predictionStatus: raw.predictionStatus || raw.prediction_status || null,
     whyShort: deriveWhyShort(raw, reasons),
     evidenceHighlights: deriveEvidenceHighlights(raw, reasons),
     thumbnailUrl: raw.thumbnailUrl || raw.thumbnail_url || raw.thumbnail || null,
@@ -175,7 +170,7 @@ export function normalizeOpportunity(raw) {
     raw,
   };
 
-  normalized.column = classifyToColumn(normalized);
+  normalized.column = COLUMN_KEYS.includes(raw.boardColumn) ? raw.boardColumn : classifyToColumn(normalized);
   return normalized;
 }
 
@@ -184,7 +179,7 @@ export function pickHero(items) {
   const withEvidence = items.filter(it => (it.evidenceCount || 0) > 0 && (it.evidenceHighlights || []).length > 0);
   const pool = withEvidence.length ? withEvidence : items;
   const ordered = [...pool].sort((a, b) => {
-    const colRank = { shoot_now: 0, priority: 1, high_potential: 2, adapt: 3, park: 4 };
+    const colRank = { shoot_now: 0, observe: 1, priority: 2, high_potential: 3, adapt: 4, park: 5 };
     const rA = colRank[a.column] ?? 5;
     const rB = colRank[b.column] ?? 5;
     if (rA !== rB) return rA - rB;
@@ -195,7 +190,7 @@ export function pickHero(items) {
 }
 
 export function groupByColumn(items) {
-  const groups = { shoot_now: [], adapt: [], priority: [], high_potential: [], park: [] };
+  const groups = { observe: [], shoot_now: [], adapt: [], priority: [], high_potential: [], park: [] };
   for (const it of items) {
     const key = groups[it.column] ? it.column : 'park';
     groups[key].push(it);

@@ -9,6 +9,20 @@ import '../styles/today.css';
 
 const PERIOD_LABELS = { today: 'Сьогодні', yesterday: 'Вчора', week: '7 днів', month: '30 днів' };
 
+const CHART_TITLES = {
+  today: 'Що змінилось протягом дня',
+  yesterday: 'Що було вчора',
+  week: 'Що змінилось за 7 днів',
+  month: 'Що змінилось за 30 днів',
+};
+
+const CHART_NOTES = {
+  today: 'Обсяг вхідних сигналів за годину (наростаючим підсумком)',
+  yesterday: 'Обсяг вхідних сигналів за годину (наростаючим підсумком)',
+  week: 'Обсяг вхідних сигналів за кожен день періоду',
+  month: 'Обсяг вхідних сигналів за кожен день періоду',
+};
+
 function useTodayIntel(period) {
   return usePolling(
     () => api(`/api/today-intel?period=${encodeURIComponent(period)}`),
@@ -19,7 +33,7 @@ function useTodayIntel(period) {
 
 // ── Day Chart (SVG) ─────────────────────────────────────────────────────────
 
-function DayChart({ chartData = [], events = [] }) {
+function DayChart({ chartData = [], events = [], bucket = 'hour' }) {
   const W = 540;
   const H = 200;
   const PL = 42;
@@ -77,7 +91,7 @@ function DayChart({ chartData = [], events = [] }) {
     return (
       <div className="tiChartEmpty">
         <Clock size={24} />
-        <p>Дані за обраний день ще збираються</p>
+        <p>{bucket === 'day' ? 'Дані за обраний період ще збираються' : 'Дані за обраний день ще збираються'}</p>
       </div>
     );
   }
@@ -134,7 +148,7 @@ function DayChart({ chartData = [], events = [] }) {
         <span className="tiChartLegendItem green"><span />Коментарі</span>
         <span className="tiChartLegendItem purple"><span />Хештеги</span>
         <span className="tiChartLegendItem orange"><span />Ключові слова</span>
-        <span className="tiChartLegendItem muted"><span style={{ borderTop: '1px dashed' }} />Сигнали сумарно</span>
+        <span className="tiChartLegendItem muted"><span style={{ borderTop: '1px dashed' }} />{bucket === 'day' ? 'Всього за день' : 'Сигнали сумарно'}</span>
       </div>
     </div>
   );
@@ -618,10 +632,14 @@ export default function TodayPage() {
       <div className="tiMainGrid">
         <div className="tiChartSection">
           <div className="tiSectionHeader">
-            <h3>Що змінилось протягом дня</h3>
-            <span className="tiSectionNote">Обсяг вхідних сигналів (відео, коментарі, хештеги, ключові слова)</span>
+            <h3>{CHART_TITLES[period] || CHART_TITLES.today}</h3>
+            <span className="tiSectionNote">{CHART_NOTES[period] || CHART_NOTES.today}</span>
           </div>
-          <DayChart chartData={d.day_chart || []} events={d.day_events || []} />
+          <DayChart
+            chartData={d.day_chart || []}
+            events={d.day_events || []}
+            bucket={d.chart_bucket || 'hour'}
+          />
           {(d.day_events || []).length > 0 && (
             <div className="tiEventList">
               {d.day_events.map((ev, i) => (

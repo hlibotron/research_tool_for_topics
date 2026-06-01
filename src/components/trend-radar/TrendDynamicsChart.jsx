@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Activity, LineChart, Search, X } from 'lucide-react';
+import { Activity, LineChart } from 'lucide-react';
 import Card from '../common/Card.jsx';
 import { api } from '../../lib/shared.jsx';
 import { compactNumber } from '../../lib/formatters.js';
@@ -16,7 +16,7 @@ const DIMENSION_OPTIONS = [
   { value: 'hashtags', label: 'Хештеги' },
   { value: 'formats', label: 'Формати' },
   { value: 'categories', label: 'Категорії' },
-  { value: 'videos', label: 'Канали' },
+  { value: 'channels', label: 'Канали' },
 ];
 
 const FORMAT_OPTIONS = [
@@ -69,6 +69,25 @@ function useDebounced(value, ms) {
     return () => clearTimeout(handle);
   }, [value, ms]);
   return debounced;
+}
+
+export function trendTimeseriesQuery(filters, metric, dimension) {
+  return new URLSearchParams({
+    days: String(filters.days),
+    metric,
+    dimension,
+    format: filters.format,
+    language: filters.language,
+    region: filters.region,
+    search: filters.search,
+    lane: filters.lane,
+    source: filters.source,
+    category: filters.category,
+    direction: filters.direction,
+    minEvidence: String(filters.minEvidence),
+    minVph: String(filters.minVph),
+    minOutlier: String(filters.minOutlier),
+  }).toString();
 }
 
 function ChartLegend({ seriesKeys, totals, metric, otherTotal }) {
@@ -196,30 +215,16 @@ function MultiLineChart({ chart, seriesKeys, metric }) {
   );
 }
 
-export default function TrendDynamicsChart() {
-  const [days, setDays] = useState(30);
+export default function TrendDynamicsChart({ filters, children }) {
   const [metric, setMetric] = useState('videos');
   const [dimension, setDimension] = useState('topics');
-  const [fmt, setFmt] = useState('any');
-  const [region, setRegion] = useState('any');
-  const [language, setLanguage] = useState('any');
-  const [searchInput, setSearchInput] = useState('');
-  const search = useDebounced(searchInput, 350);
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const qs = new URLSearchParams({
-      days: String(days),
-      metric,
-      dimension,
-      format: fmt,
-      region,
-      language,
-      search,
-    }).toString();
+    const qs = trendTimeseriesQuery(filters, metric, dimension);
     let abort = false;
     setLoading(true);
     setError('');
@@ -228,7 +233,7 @@ export default function TrendDynamicsChart() {
       .catch((err) => { if (!abort) setError(err.message || String(err)); })
       .finally(() => { if (!abort) setLoading(false); });
     return () => { abort = true; };
-  }, [days, metric, dimension, fmt, region, language, search]);
+  }, [filters, metric, dimension]);
 
   const chart = data?.chart || [];
   const seriesKeys = data?.series_keys || [];
@@ -254,39 +259,16 @@ export default function TrendDynamicsChart() {
         ) : null}
       </div>
 
+      {children ? <div className="trend-dyn-shared-filters">{children}</div> : null}
+
       <div className="trend-dyn-filters">
-        <select value={days} onChange={(e) => setDays(Number(e.target.value))} aria-label="Період">
-          {PERIOD_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-        </select>
         <select value={dimension} onChange={(e) => setDimension(e.target.value)} aria-label="Тип параметра">
           {DIMENSION_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
         </select>
         <select value={metric} onChange={(e) => setMetric(e.target.value)} aria-label="Метрика">
           {METRIC_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
         </select>
-        <select value={fmt} onChange={(e) => setFmt(e.target.value)} aria-label="Формат відео">
-          {FORMAT_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-        </select>
-        <select value={region} onChange={(e) => setRegion(e.target.value)} aria-label="Регіон">
-          {REGION_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-        </select>
-        <select value={language} onChange={(e) => setLanguage(e.target.value)} aria-label="Мова відео">
-          {LANGUAGE_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-        </select>
-        <label className="trend-dyn-search">
-          <Search size={14} />
-          <input
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Ключове слово у назві/тегах..."
-            aria-label="Ключове слово"
-          />
-          {searchInput ? (
-            <button type="button" onClick={() => setSearchInput('')} aria-label="Очистити" className="trend-dyn-search-clear">
-              <X size={13} />
-            </button>
-          ) : null}
-        </label>
+        <span className="trend-dyn-shared-filter-note">Поєднується з фільтрами графіка вище</span>
       </div>
 
       <div className="trend-dyn-body">

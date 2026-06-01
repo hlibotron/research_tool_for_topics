@@ -21,8 +21,20 @@ import { SkeletonBlock } from '../components/common/Skeleton.jsx';
 import EmptyState from '../components/common/EmptyState.jsx';
 import '../styles/brief.css';
 
-function useOpportunities(days) {
-  return usePolling(() => api(`/api/opportunities?days=${encodeURIComponent(days)}`), [days], 30000);
+// Resolve the brief id through the backend resolver (§8.5): opportunity →
+// backlog → saved IdeaLab → content-plan link. A missing id returns a
+// not-found sentinel; we never silently open the top opportunity.
+function useBrief(id) {
+  return usePolling(async () => {
+    if (!id) return null;
+    try {
+      return await api(`/api/brief?id=${encodeURIComponent(id)}`);
+    } catch (err) {
+      const msg = String(err?.message || err);
+      if (msg.toLowerCase().includes('not found')) return { ok: false, notFound: true, error: msg };
+      throw err;
+    }
+  }, [id], 60000);
 }
 
 function normalizeBriefData(source) {
@@ -80,6 +92,18 @@ function normalizeBriefData(source) {
     channelFitVerdict: source.channelFitVerdict || source.channel_fit_verdict || '',
     channelFitReason: source.channelFitReason || source.channel_fit_reason || '',
     productionNotes: source.productionNotes || source.production_notes || '',
+    // Deep-review (shared validation engine) fields.
+    recommendedTopic: source.recommendedTopic || source.recommended_topic || '',
+    viewerPromise: source.viewerPromise || source.viewer_promise || source.one_sentence_promise || '',
+    viewerQuestion: source.viewerQuestion || source.viewer_question || '',
+    mainConflict: source.mainConflict || source.main_conflict || '',
+    measurablePayoff: source.measurablePayoff || source.measurable_payoff || '',
+    mustShowMoments: source.mustShowMoments || source.must_show_moments || [],
+    cheapTest: source.cheapTest || source.cheap_test || null,
+    introConsistency: source.introConsistency || source.intro_consistency || '',
+    shortsFragments: source.shortsFragments || source.shorts_fragments || [],
+    deepReviewStatus: source.deepReviewStatus || source.deep_review_status || null,
+    editorialScore: source.editorialScore ?? source.editorial_score ?? null,
     source,
   };
 }
@@ -115,36 +139,76 @@ function lowEvidenceWarning(brief) {
   return null;
 }
 
+const MOMENT_LABELS = {
+  promise: 'Обіцянка', problem: 'Проблема', first_test: 'Перший тест',
+  failure_or_limit: 'Провал / межа', comparison: 'Порівняння',
+  final_payoff: 'Фінальний payoff', verdict: 'Вердикт',
+};
+
+function MustShowMoments({ moments }) {
+  return (
+    <div className="brief-moments">
+      {moments.map((m, i) => (
+        <div key={i} className="brief-moment-row" style={{ display: 'flex', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--border, #eee)' }}>
+          <div style={{ minWidth: 130 }}>
+            <div style={{ fontWeight: 600 }}>{MOMENT_LABELS[m.type] || m.type}</div>
+            {m.placement && <div style={{ fontSize: 12, color: 'var(--muted, #888)' }}>{m.placement}</div>}
+          </div>
+          <div style={{ flex: 1 }}>
+            {m.shot && <div><strong>Кадр:</strong> {m.shot}</div>}
+            {m.proof && <div><strong>Доказ:</strong> {m.proof}</div>}
+            {m.retention_reason && <div style={{ color: 'var(--muted, #888)' }}>{m.retention_reason}</div>}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CheapTest({ test }) {
+  return (
+    <div className="brief-cheap-test">
+      {test.hypothesis && <p><strong>Гіпотеза:</strong> {test.hypothesis}</p>}
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, color: 'var(--muted, #888)' }}>
+        {test.format && <span>Формат: {formatLabel(test.format)}</span>}
+        {test.max_effort_hours != null && <span>Зусилля: ≤ {test.max_effort_hours} год</span>}
+      </div>
+      {test.required_assets?.length > 0 && (
+        <p><strong>Потрібно:</strong> {test.required_assets.join(', ')}</p>
+      )}
+      {test.script?.length > 0 && (
+        <ol style={{ margin: '8px 0', paddingLeft: 20 }}>
+          {test.script.map((s, i) => <li key={i}>{s}</li>)}
+        </ol>
+      )}
+      {test.success_signal && <p><strong>Сигнал успіху:</strong> {test.success_signal}</p>}
+    </div>
+  );
+}
+
 export default function BriefPage({ route }) {
   const params = new URLSearchParams(route?.search || '');
   const requestedId = params.get('id') || '';
   const ideaParam = params.get('idea') || '';
 
-  const { data, error, loading, reload } = useOpportunities(30);
-  const opportunities = data?.opportunities || [];
-
-  let sourceOpportunity = null;
-  if (requestedId) {
-    sourceOpportunity = opportunities.find(item => {
-      const keys = [item.id, item.topic_key, item.title, item.topic].map(v => String(v || ''));
-      return keys.includes(requestedId);
-    }) || null;
-  }
-  if (!sourceOpportunity) {
-    sourceOpportunity = data?.best || opportunities[0] || null;
-  }
+  const { data, error, loading, reload } = useBrief(requestedId);
+  const notFound = Boolean(requestedId && data && data.ok === false);
+  const sourceBrief = data && data.ok !== false ? (data.brief || null) : null;
 
   const [briefOverride, setBriefOverride] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [generateError, setGenerateError] = useState(null);
 
   const mergedSource = briefOverride
-    ? { ...sourceOpportunity, ...briefOverride }
-    : sourceOpportunity;
+    ? { ...sourceBrief, ...briefOverride }
+    : sourceBrief;
 
   const brief = mergedSource ? normalizeBriefData(mergedSource) : null;
 
-  const hasRichBrief = brief && (brief.hooks?.length > 1 || brief.scriptOutline?.length > 0);
+  const hasRichBrief = brief && (
+    brief.hooks?.length > 1 || brief.scriptOutline?.length > 0
+    || brief.mustShowMoments?.length > 0 || Boolean(brief.recommendedTopic)
+  );
 
   async function handleGenerate() {
     if (!brief?.id) return;
@@ -195,6 +259,22 @@ export default function BriefPage({ route }) {
         title="Бріф для ідеї ще не створено"
         text="Поверніться в Idea Lab і проаналізуйте ідею — бріф буде сформовано після аналізу."
         action={<Link className="button ghost" href={`/idea-lab?idea=${encodeURIComponent(ideaParam)}`}>Повернутись в Idea Lab</Link>}
+      />
+    </div>
+  );
+
+  if (notFound) return (
+    <div className="brief-page">
+      <h1 className="brief-page-title"><Wand2 size={20} style={{ color: 'var(--blue)' }} />Готовий бріф</h1>
+      <EmptyState
+        title="Бріф за цим посиланням не знайдено"
+        text="Можливість, ідея або елемент плану з таким id не існує. Бріф не відкривається «навмання» — оберіть конкретну тему."
+        action={
+          <div style={{ display: 'flex', gap: 10 }}>
+            <Link className="button ghost" href="/opportunities">Перейти до Можливостей</Link>
+            <Link className="button ghost" href="/backlog">Відкрити Backlog</Link>
+          </div>
+        }
       />
     </div>
   );
@@ -288,6 +368,18 @@ export default function BriefPage({ route }) {
           <BriefSection num={sectionNum++} title={brief.recommendedFormat ? `Структура та сценарій (${formatLabel(brief.recommendedFormat)})` : 'Структура та сценарій'}>
             <BriefStructure brief={brief} />
           </BriefSection>
+
+          {brief.mustShowMoments?.length > 0 && (
+            <BriefSection num={sectionNum++} title="Ключові моменти відео">
+              <MustShowMoments moments={brief.mustShowMoments} />
+            </BriefSection>
+          )}
+
+          {brief.cheapTest && (
+            <BriefSection num={sectionNum++} title="Дешевий тест">
+              <CheapTest test={brief.cheapTest} />
+            </BriefSection>
+          )}
 
           <BriefSection num={sectionNum++} title="B-roll та вставки">
             <BriefBroll brief={brief} />

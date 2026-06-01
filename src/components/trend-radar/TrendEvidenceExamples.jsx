@@ -41,13 +41,13 @@ export default function TrendEvidenceExamples({ data }) {
               const thumbnail = raw.thumbnail || raw.thumbnailUrl || raw.thumbnail_url;
               return (
                 <article className="trend-evidence-video" key={`${item.type}-${item.id}`}>
-                  <div className="trend-evidence-thumb">{thumbnail ? <img src={thumbnail} alt="" /> : <ImageIcon size={18} />}</div>
+                  <div className="trend-evidence-thumb">{thumbnail ? <a href={raw.url} target="_blank" rel="noreferrer"><img src={thumbnail} alt="" /></a> : <ImageIcon size={18} />}</div>
                   <div>
-                    <strong>{item.label || 'немає даних'}</strong>
+                    <strong>{raw.url ? <a href={raw.url} target="_blank" rel="noreferrer">{item.label || 'немає даних'}</a> : item.label || 'немає даних'}</strong>
                     <span>{raw.channel || raw.channel_title || item.subtitle || 'немає даних'}</span>
                     <small>{hasNumber(raw.views) ? `${compactNumber(raw.views)} переглядів` : 'перегляди: немає даних'} · {raw.publishedAt || raw.published_at || item.updatedAt || 'немає даних'}</small>
                   </div>
-                  <b>{hasNumber(videoVelocity(item)) ? `${compactNumber(videoVelocity(item))}/day` : percent(item.demandGrowth)}</b>
+                  <b>{hasNumber(raw.viewsPerHour) ? `${compactNumber(raw.viewsPerHour)}/год` : hasNumber(videoVelocity(item)) ? `${compactNumber(videoVelocity(item))}/день` : percent(item.demandGrowth)}</b>
                 </article>
               );
             })}
@@ -55,7 +55,7 @@ export default function TrendEvidenceExamples({ data }) {
           </div>
         </section>
         <section>
-          <h3><Hash size={15} />Хештеги, що зростають</h3>
+          <h3><Hash size={15} />Теги / хештеги, що зростають</h3>
           <div className="trend-evidence-hashtags">
             {risingHashtags.map((item) => (
               <div key={`${item.type}-${item.id}`}>

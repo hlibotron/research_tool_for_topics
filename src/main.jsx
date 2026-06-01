@@ -39,6 +39,7 @@ import { ToastContext, navigateTo, Link, api, usePolling } from './lib/shared.js
 import { compactNumber, percentValue, formatLabel, actionTone, trendTone, confidenceTone, numberFmt } from './lib/formatters.js';
 const TodayPage = lazy(() => import('./pages/TodayPage.jsx'));
 const OpportunitiesPage = lazy(() => import('./pages/OpportunitiesPage.jsx'));
+const BacklogPage = lazy(() => import('./pages/BacklogPage.jsx'));
 const IdeaLabPage = lazy(() => import('./pages/IdeaLabPage.jsx'));
 const TrendRadarPage = lazy(() => import('./pages/TrendRadarPage.jsx'));
 const SummaryPage = lazy(() => import('./pages/SummaryPage.jsx'));
@@ -177,6 +178,7 @@ function Shell({ active, children, quota: quotaProp }) {
         <nav className="nav">
           <Link className={active === 'today' || active === 'dashboard' ? 'active' : ''} href="/"><Home size={18} />Сьогодні</Link>
           <Link className={active === 'opportunities' ? 'active' : ''} href="/opportunities"><Star size={18} />Можливості</Link>
+          <Link className={active === 'backlog' ? 'active' : ''} href="/backlog"><LayoutDashboard size={18} />Backlog ідей</Link>
           <Link className={active === 'contentPlan' ? 'active' : ''} href="/content-plan"><ClipboardList size={18} />План контенту</Link>
           <Link className={active === 'ideaLab' ? 'active' : ''} href="/idea-lab"><Lightbulb size={18} />Idea Lab</Link>
           <Link className={active === 'trends' ? 'active' : ''} href="/trends"><TrendingUp size={18} />Trend Radar</Link>
@@ -219,10 +221,6 @@ function Topbar({ now, quotaDay, onRefresh }) {
       <div className="topbox">
         <span>Робочий простір</span>
         <strong>AI Media Lab</strong>
-      </div>
-      <div className="searchBox">
-        <Search size={18} />
-        <input disabled placeholder="Search jobs, reports, channels..." title="Global search — coming soon" aria-label="Global search (coming soon)" />
       </div>
       <div className="topbox">
         <span>Український час / quota day</span>
@@ -292,7 +290,6 @@ function DashboardPage() {
           </div>
           <div className="rowActions">
             {best ? <Link className="button" href={`/brief?id=${encodeURIComponent(best.id || best.topic_key || best.title)}`}><FileText size={16} />Open Brief</Link> : null}
-            {best ? <button className="button ghost" onClick={() => showToast('Coming soon: content planning', 'blue')}><CalendarClock size={16} />Add to Plan</button> : null}
             <Link className="button ghost" href="/opportunities"><Star size={16} />Opportunity Board</Link>
           </div>
         </div>
@@ -466,7 +463,6 @@ function OpportunityCard({ opportunity }) {
       <OpportunityScoreBreakdown opportunity={opportunity} />
       <div className="rowActions">
         <Link className="button" href={`/brief?id=${encodeURIComponent(opportunity.id || opportunity.topic_key || opportunity.title)}`}>Open Brief</Link>
-        <button className="button ghost" onClick={() => showToast('Coming soon: content planning', 'blue')}>Add to Plan</button>
       </div>
     </article>
   );
@@ -2151,8 +2147,6 @@ function ContentBriefPanel({ opportunity }) {
           <h2>Next action</h2>
           <SuggestedAction text={opportunity.suggestedAction} />
           <div className="rowActions briefActions">
-            <button className="button" onClick={() => showToast('Coming soon: content planning', 'blue')}>Add to Content Plan</button>
-            <button className="button ghost" onClick={() => showToast('Coming soon: mark as planned', 'blue')}>Mark as Planned</button>
             <button className="button ghost" onClick={copyBrief}>Copy Brief</button>
             <Link className="button ghost" href="/trends">View Trend Evidence</Link>
           </div>
@@ -2557,9 +2551,7 @@ function TopicIdeaCard({ item }) {
         </ul>
       </div>
       <div className="rowActions">
-        <button className="button" onClick={() => showToast('Coming soon: script generator', 'blue')}>Створити сценарій</button>
-        <button className="button ghost" onClick={() => showToast('Coming soon: content planning', 'blue')}>Додати в план</button>
-        <Link className="button ghost" href="/llm">LLM аналіз</Link>
+        <Link className="button" href="/llm">LLM аналіз</Link>
       </div>
     </article>
   );
@@ -2589,6 +2581,8 @@ function DataHealthPage() {
   const observedCoveragePct = Math.round(Number(health.observedVelocityCoverage || 0) * 1000) / 10;
   const snapshotBuckets = health.snapshotBuckets || {};
   const quotaGuardEvents = health.quotaGuardEvents || [];
+  const schedulerHealth = health.schedulerHealth || {};
+  const rssHealth = health.rssMonitorHealth || {};
   return (
     <Shell active="dataHealth" quota={{ quota_used: health.apiQuotaUsed || 0, quota_limit: quotaSummary.daily_limit || 10000, quota_pct: quotaPct }}>
       <header className="analyticsHeader">
@@ -2635,6 +2629,30 @@ function DataHealthPage() {
             </section>
           </section>
           <section className="technicalGrid">
+            <section className="panel">
+              <div className="panelHeader">
+                <h2>Scheduler heartbeat</h2>
+                <Pill tone={schedulerHealth.status === 'healthy' ? 'green' : schedulerHealth.status === 'unknown' ? 'orange' : 'red'}>{schedulerHealth.status || 'unknown'}</Pill>
+              </div>
+              <div className="ideaMetrics">
+                <InfoTile label="Last tick" value={schedulerHealth.last_tick_finished_at || '-'} />
+                <InfoTile label="Age" value={schedulerHealth.age_minutes == null ? '-' : `${schedulerHealth.age_minutes}m`} />
+                <InfoTile label="Launcher" value={schedulerHealth.launcher || '-'} />
+                <InfoTile label="Recovery" value={schedulerHealth.recovery_pending ? 'pending' : (schedulerHealth.last_recovery_status || 'idle')} />
+              </div>
+            </section>
+            <section className="panel">
+              <div className="panelHeader">
+                <h2>Competitor RSS</h2>
+                <Pill tone={rssHealth.status === 'healthy' ? 'green' : rssHealth.status === 'unknown' ? 'orange' : 'red'}>{rssHealth.status || 'unknown'}</Pill>
+              </div>
+              <div className="ideaMetrics">
+                <InfoTile label="Checked feeds" value={numberFmt.format(rssHealth.channels || 0)} />
+                <InfoTile label="Successful" value={numberFmt.format(rssHealth.successful || 0)} />
+                <InfoTile label="Failed" value={numberFmt.format(rssHealth.failed || 0)} />
+                <InfoTile label="Error rate" value={rssHealth.error_rate == null ? '-' : `${Math.round(Number(rssHealth.error_rate) * 1000) / 10}%`} />
+              </div>
+            </section>
             <section className="panel">
               <div className="panelHeader">
                 <h2>Observed velocity coverage</h2>
@@ -3079,8 +3097,7 @@ function NextActionPanel({ opportunity }) {
             <span>Format <b>{opportunity.recommended_format || '-'}</b></span>
           </div>
           <div className="rowActions">
-            <button className="button" onClick={() => showToast('Coming soon: content planning', 'blue')}>Додати в план</button>
-            <Link className="button ghost" href="/llm">Відкрити LLM аналіз</Link>
+            <Link className="button" href="/llm">Відкрити LLM аналіз</Link>
           </div>
         </article>
       ) : (
@@ -3224,8 +3241,7 @@ function TopicPerformancePanel({ opportunities }) {
                 <span>Format <b>{item.recommended_format || '-'}</b></span>
               </div>
               <div className="rowActions">
-                <button className="button ghost" onClick={() => showToast('Coming soon: script generator', 'blue')}>Створити сценарій</button>
-                <button className="button ghost" onClick={() => showToast('Coming soon: content planning', 'blue')}>Додати в план</button>
+                <Link className="button ghost" href={`/brief?id=${encodeURIComponent(item.id || item.topic_key || item.title)}`}>Open Brief</Link>
               </div>
             </article>
           );
@@ -3816,6 +3832,7 @@ function App() {
   else if (route.path === '/settings') page = <Shell active="settings"><SettingsPage /></Shell>;
   else if (route.path === '/competitors') page = <Shell active="competitors"><CompetitorsPage /></Shell>;
   else if (route.path === '/content-plan') page = <Shell active="contentPlan"><ContentPlanPage /></Shell>;
+  else if (route.path === '/backlog') page = <Shell active="backlog"><BacklogPage /></Shell>;
   else if (route.path === '/') page = <Shell active="today"><TodayPage /></Shell>;
   else page = <DashboardPage />;
 

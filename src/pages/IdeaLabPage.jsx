@@ -7,8 +7,10 @@ import IdeaComparison from '../components/idea-lab/IdeaComparison.jsx';
 import IdeaEvidence from '../components/idea-lab/IdeaEvidence.jsx';
 import IdeaOutputGrid from '../components/idea-lab/IdeaOutputGrid.jsx';
 import SimilarVideos from '../components/idea-lab/SimilarVideos.jsx';
+import ValidationPanel from '../components/validation/ValidationPanel.jsx';
 import { SkeletonBlock } from '../components/common/Skeleton.jsx';
 import '../styles/idea-lab.css';
+import '../styles/validation.css';
 
 async function runIdeaLab(payload) {
   return api('/api/idea-lab', {
@@ -76,6 +78,9 @@ export default function IdeaLabPage({ route }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
+  const [deepReviewing, setDeepReviewing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   function validate() {
     const trimmed = idea.trim();
@@ -102,10 +107,42 @@ export default function IdeaLabPage({ route }) {
         return;
       }
       setResult(normalizeIdeaResult(data));
+      setSaved(false);
     } catch (err) {
       setError(err.message || String(err));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDeepReview() {
+    if (!idea.trim()) return;
+    setDeepReviewing(true);
+    try {
+      const data = await runIdeaLab({ idea: idea.trim(), days: 30, deep_review: true });
+      if (data && data.ok !== false) setResult(normalizeIdeaResult(data));
+    } catch (err) {
+      setError(err.message || String(err));
+    } finally {
+      setDeepReviewing(false);
+    }
+  }
+
+  async function handleSave() {
+    if (!idea.trim()) return;
+    setSaving(true);
+    try {
+      const res = await api('/api/idea-lab/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idea: idea.trim(), days: 30 }),
+      });
+      if (res.ok) setSaved(true);
+      else setError(res.error || 'Не вдалося зберегти у Backlog');
+    } catch (err) {
+      setError(err.message || String(err));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -156,6 +193,17 @@ export default function IdeaLabPage({ route }) {
       {!loading && result && (
         <>
           <IdeaVerdict result={result} />
+
+          {result.validation ? (
+            <ValidationPanel
+              validation={result.validation}
+              onDeepReview={handleDeepReview}
+              deepReviewLoading={deepReviewing}
+              onSave={handleSave}
+              saveLoading={saving}
+              saved={saved}
+            />
+          ) : null}
 
           <div className="idea-main-section">
             <IdeaComparison result={result} idea={idea} />

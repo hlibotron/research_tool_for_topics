@@ -27,6 +27,7 @@ export default function ScoreBreakdown({ values = {}, finalScore = 0 }) {
       </div>
       <div className="opp-score-rows">
         {ROWS.map(({ key, label }) => {
+          if (values[key] == null) return null;
           const v = Math.max(0, Math.min(100, Math.round(Number(values[key]) || 0)));
           return (
             <div key={key} className="opp-score-row">

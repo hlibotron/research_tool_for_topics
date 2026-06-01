@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Radar, RefreshCw } from 'lucide-react';
 import { api, usePolling } from '../lib/shared.jsx';
 import Button from '../components/common/Button.jsx';
@@ -13,9 +13,11 @@ import TrendInsights from '../components/trend-radar/TrendInsights.jsx';
 import TrendDynamicsChart from '../components/trend-radar/TrendDynamicsChart.jsx';
 import TrendEvidenceExamples from '../components/trend-radar/TrendEvidenceExamples.jsx';
 import TrendEvidenceFooter from '../components/trend-radar/TrendEvidenceFooter.jsx';
+import TrendTopicDrawer from '../components/trend-radar/TrendTopicDrawer.jsx';
+import TrendAlertInbox from '../components/trend-radar/TrendAlertInbox.jsx';
 import '../styles/trend-radar.css';
 
-const TAB_KEYS = ['topics', 'hashtags', 'videos', 'formats', 'categories'];
+const TAB_KEYS = ['topics', 'hashtags', 'keywords', 'videos', 'formats', 'categories'];
 
 function firstPresent(...values) {
   return values.find((value) => value !== undefined && value !== null && value !== '');
@@ -137,7 +139,8 @@ function collectRawData(data) {
   const hashtagAnalytics = data?.hashtag_analytics || {};
   return {
     topics: rawArray(data, 'topics').length ? rawArray(data, 'topics') : rawArray(data, 'top_opportunities').length ? rawArray(data, 'top_opportunities') : rawArray(data, 'opportunities'),
-    hashtags: rawArray(data, 'hashtags').length ? rawArray(data, 'hashtags') : rawArray(hashtagAnalytics, 'hashtags'),
+    hashtags: rawArray(data, 'terms').length ? rawArray(data, 'terms') : rawArray(data, 'hashtags').length ? rawArray(data, 'hashtags') : rawArray(hashtagAnalytics, 'hashtags'),
+    keywords: rawArray(data, 'keywords'),
     videos: rawArray(data, 'videos').length ? rawArray(data, 'videos') : rawArray(data, 'risingVideos').length ? rawArray(data, 'risingVideos') : rawArray(data, 'evidenceVideos'),
     formats: rawArray(data, 'formats').length ? rawArray(data, 'formats') : rawArray(analytics, 'format_mix'),
     categories: rawArray(data, 'categories').length ? rawArray(data, 'categories') : rawArray(analytics, 'category_mix'),
@@ -152,17 +155,28 @@ function normalizeTrendData(data) {
   }, {});
 }
 
-async function loadTrendRadarData(days) {
+async function loadTrendRadarData(filters) {
+  const query = new URLSearchParams({
+    days: String(filters.days),
+    lane: filters.lane,
+    search: filters.search,
+    format: filters.format,
+    language: filters.language,
+    region: filters.region,
+    source: filters.source,
+    minVph: String(filters.minVph),
+    minOutlier: String(filters.minOutlier),
+  });
   try {
-    return { ...(await api(`/api/trends?days=${encodeURIComponent(days)}`)), __source: 'trends' };
+    return { ...(await api(`/api/trends?${query}`)), __source: 'trends' };
   } catch (trendError) {
-    const summary = await api(`/api/summary?days=${encodeURIComponent(days)}`);
+    const summary = await api(`/api/summary?days=${encodeURIComponent(filters.days)}`);
     return { ...summary, __source: 'summary', __fallbackReason: trendError.message || String(trendError) };
   }
 }
 
-function useTrendRadar(days) {
-  return usePolling(() => loadTrendRadarData(days), [days], 30000);
+function useTrendRadar(filters) {
+  return usePolling(() => loadTrendRadarData(filters), [JSON.stringify(filters)], 30000);
 }
 
 function categoryOptionsFromData(normalizedData) {
@@ -173,14 +187,19 @@ function categoryOptionsFromData(normalizedData) {
   return Array.from(new Set(values)).sort((a, b) => String(a).localeCompare(String(b)));
 }
 
-function applyFilters(items, filters) {
+export function applyFilters(items, filters) {
   const needle = filters.search.trim().toLowerCase();
   return items.filter((item) => {
     const haystack = `${item.label || ''} ${item.subtitle || ''} ${item.category || ''}`.toLowerCase();
     if (needle && !haystack.includes(needle)) return false;
     if (filters.category !== 'all' && item.category !== filters.category) return false;
     if (filters.direction !== 'all' && item.direction !== filters.direction) return false;
-    if (item.evidenceQuality !== null && Number(item.evidenceQuality) < Number(filters.minEvidence)) return false;
+    if (Number(filters.minEvidence) > 0 && (item.evidenceQuality === null || Number(item.evidenceQuality) < Number(filters.minEvidence))) return false;
+    if (filters.lane !== 'all' && item.raw?.lane && item.raw.lane !== filters.lane) return false;
+    if (filters.format !== 'any' && item.raw?.format && item.raw.format !== filters.format) return false;
+    if (filters.language !== 'any' && item.raw?.language && item.raw.language !== filters.language) return false;
+    if (Number(filters.minVph) > 0 && Number(item.raw?.viewsPerHour || 0) < Number(filters.minVph)) return false;
+    if (Number(filters.minOutlier) > 0 && Number(item.raw?.outlierRatio || 0) < Number(filters.minOutlier)) return false;
     return true;
   });
 }
@@ -202,30 +221,56 @@ function TrendRadarSkeleton() {
 }
 
 export default function TrendRadarPage() {
-  const [days, setDays] = useState(7);
-  const [activeTab, setActiveTab] = useState('topics');
-  const [filters, setFilters] = useState({
-    search: '',
-    category: 'all',
-    direction: 'all',
-    minEvidence: 0,
-  });
+  const params = useMemo(() => new URLSearchParams(window.location.search), []);
+  const [activeTab, setActiveTab] = useState(params.get('tab') || 'topics');
+  const [selectedTopic, setSelectedTopic] = useState(null);
+  const initialFilters = useMemo(() => ({
+    days: Number(params.get('days') || 7),
+    lane: params.get('lane') || 'core',
+    search: params.get('search') || '',
+    category: params.get('category') || 'all',
+    direction: params.get('direction') || 'all',
+    minEvidence: Number(params.get('minEvidence') || 0),
+    format: params.get('format') || 'any',
+    language: params.get('language') || 'any',
+    region: params.get('region') || 'any',
+    source: params.get('source') || 'any',
+    minVph: Number(params.get('minVph') || 0),
+    minOutlier: Number(params.get('minOutlier') || 0),
+  }), [params]);
+  const [filters, setFilters] = useState(initialFilters);
+  const [chartFilters, setChartFilters] = useState(initialFilters);
 
-  const { data, error, loading, reload } = useTrendRadar(days);
+  const { data, error, loading, reload } = useTrendRadar(filters);
   const normalizedData = useMemo(() => normalizeTrendData(data), [data]);
   const allItems = useMemo(() => Object.values(normalizedData).flat(), [normalizedData]);
   const activeItems = normalizedData[activeTab] || [];
   const filteredItems = useMemo(() => applyFilters(activeItems, filters), [activeItems, filters]);
   const categoryOptions = useMemo(() => categoryOptionsFromData(normalizedData), [normalizedData]);
   const hasAnySignals = allItems.length > 0;
-  const hasActiveFilters = filters.search || filters.category !== 'all' || filters.direction !== 'all' || Number(filters.minEvidence) !== 0;
+  const hasActiveFilters = filters.search || filters.category !== 'all' || filters.direction !== 'all' || filters.lane !== 'all' || Number(filters.minEvidence) !== 0 || filters.format !== 'any' || filters.language !== 'any' || filters.region !== 'any' || filters.source !== 'any' || Number(filters.minVph) > 0 || Number(filters.minOutlier) > 0;
+
+  useEffect(() => {
+    const query = new URLSearchParams();
+    query.set('tab', activeTab);
+    Object.entries(filters).forEach(([key, value]) => query.set(key, String(value)));
+    window.history.replaceState({}, '', `${window.location.pathname}?${query}`);
+  }, [activeTab, filters]);
 
   function updateFilters(patch) {
     setFilters((current) => ({ ...current, ...patch }));
   }
 
   function resetFilters() {
-    setFilters({ search: '', category: 'all', direction: 'all', minEvidence: 0 });
+    setFilters((current) => ({ ...current, search: '', category: 'all', direction: 'all', minEvidence: 0, format: 'any', language: 'any', region: 'any', source: 'any', minVph: 0, minOutlier: 0 }));
+  }
+
+  function updateChartFilters(patch) {
+    setChartFilters((current) => ({ ...current, ...patch }));
+  }
+
+  function resetChartFilters() {
+    setChartFilters((current) => ({ ...current, search: '', category: 'all', direction: 'all', minEvidence: 0, format: 'any', language: 'any', region: 'any', source: 'any', minVph: 0, minOutlier: 0 }));
   }
 
   if (error) {
@@ -267,15 +312,22 @@ export default function TrendRadarPage() {
         </div>
       ) : (
         <>
+          {data?.data_health?.degraded ? <div className="trend-health-banner">Observed VPH ще недоступний для цього зрізу. Estimated metrics позначені окремо та не створюють high-confidence alerts.</div> : null}
+          <TrendAlertInbox summary={data?.alerts_summary} />
           <TrendSummaryCards data={normalizedData} />
-          <TrendDynamicsChart />
+          <TrendDynamicsChart filters={chartFilters}>
+            <TrendFilters
+              filters={chartFilters}
+              categories={categoryOptions}
+              onChange={updateChartFilters}
+              onReset={resetChartFilters}
+            />
+          </TrendDynamicsChart>
           <section className="trend-radar-workspace">
             <TrendTabs activeTab={activeTab} onChange={(tab) => { setActiveTab(tab); resetFilters(); }} />
             <TrendFilters
-              days={days}
               filters={filters}
               categories={categoryOptions}
-              onDaysChange={setDays}
               onChange={updateFilters}
               onReset={resetFilters}
             />
@@ -286,6 +338,7 @@ export default function TrendRadarPage() {
                 totalItems={activeItems.length}
                 isFiltered={!!hasActiveFilters}
                 onResetFilters={resetFilters}
+                onOpenTopic={setSelectedTopic}
               />
               <TrendInsights items={filteredItems} allItems={allItems} tab={activeTab} />
             </div>
@@ -299,6 +352,7 @@ export default function TrendRadarPage() {
           ) : null}
           <TrendEvidenceExamples data={normalizedData} />
           <TrendEvidenceFooter data={data} items={allItems} />
+          {selectedTopic ? <TrendTopicDrawer topic={selectedTopic} onClose={() => setSelectedTopic(null)} /> : null}
         </>
       )}
     </div>

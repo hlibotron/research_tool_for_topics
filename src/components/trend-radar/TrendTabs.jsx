@@ -1,9 +1,10 @@
 import React from 'react';
-import { Boxes, Hash, Layers3, PlaySquare, Tags } from 'lucide-react';
+import { Boxes, Hash, KeyRound, Layers3, PlaySquare, Tags } from 'lucide-react';
 
 const TABS = [
   ['topics', 'Теми', Tags],
-  ['hashtags', 'Хештеги', Hash],
+  ['hashtags', 'Теги / хештеги', Hash],
+  ['keywords', 'Ключові слова', KeyRound],
   ['videos', 'Відео', PlaySquare],
   ['formats', 'Формати', Boxes],
   ['categories', 'Категорії', Layers3],

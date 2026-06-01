@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useContext, useRef, useEffect } from 'react';
 import {
   Search, Bell, RefreshCw, Users, Play, Flame, TrendingUp, Layers,
-  Target, ExternalLink, MoreHorizontal, Youtube, ChevronDown, Info,
+  Target, ExternalLink, MoreHorizontal, Youtube, ChevronDown, ChevronUp,
+  Info, AlertTriangle, ArrowUpDown,
 } from 'lucide-react';
 import { api, usePolling, Link, ToastContext } from '../lib/shared.jsx';
 import '../styles/competitors.css';
@@ -42,12 +43,47 @@ const FORMAT_OPTIONS = [
 const METRIC_OPTIONS = [
   { key: 'views_per_day', label: 'views/day' },
   { key: 'views', label: 'total views' },
+  { key: 'vph', label: 'VPH' },
+  { key: 'reach_ratio', label: 'Reach x' },
   { key: 'comments_per_day', label: 'comments/day' },
   { key: 'engagement_rate', label: 'engagement rate' },
   { key: 'outlier_ratio', label: 'outlier ratio' },
 ];
 
 const SERIES_COLORS = ['#6c8df5', '#4cb277', '#f5a623', '#a06bd1', '#4ea1ff'];
+
+// ── Pure helpers (exported for unit tests) ───────────────────────────────────
+export function nextVideoSort(currentSort, currentOrder, field) {
+  // First click on a new column → DESC. Re-click toggles DESC↔ASC (never resets).
+  if (currentSort === field) {
+    return { video_sort: field, video_order: currentOrder === 'desc' ? 'asc' : 'desc' };
+  }
+  return { video_sort: field, video_order: 'desc' };
+}
+export function formatReach(v) {
+  return (v === null || v === undefined) ? '\u2014' : `${Number(v).toFixed(1)}x`;
+}
+export function formatEngagement(v) {
+  return (v === null || v === undefined) ? '\u2014' : `${(Number(v) * 100).toFixed(1)}%`;
+}
+export function formatOutlier(v) {
+  return (v === null || v === undefined) ? '\u2014' : `${Number(v).toFixed(1)}x`;
+}
+export function vphBadgeLabel(source) {
+  return source === 'observed' ? 'observed' : 'estimated';
+}
+export function kpiPrimaryValue(summary) {
+  return (summary && summary.configured_competitors) || 0;
+}
+export function shouldShowDataHealthBanner(health) {
+  return !!(health && health.degraded);
+}
+export function returnToAllState(filters) {
+  return resetVideoPaging(filters, { competitor_id: 'all' });
+}
+export function resetVideoPaging(filters, patch = {}) {
+  return { ...filters, ...patch, video_limit: 40, video_offset: 0 };
+}
 
 function compactNumber(n) {
   if (!Number.isFinite(Number(n))) return '0';
@@ -160,7 +196,7 @@ function ToggleField({ label, value, onChange, accent }) {
   );
 }
 
-function FilterBar({ filters, setFilters, competitors }) {
+function FilterBar({ filters, setFilters, competitors, onCompetitorChange }) {
   const update = (patch) => setFilters({ ...filters, ...patch });
   return (
     <section className="cmFilterBar">
@@ -177,7 +213,7 @@ function FilterBar({ filters, setFilters, competitors }) {
         <FilterGroup label="Конкурент">
           <SelectField
             value={filters.competitor_id}
-            onChange={(v) => update({ competitor_id: v })}
+            onChange={(v) => onCompetitorChange(v)}
             options={[{ key: 'all', label: 'Всі конкуренти' }, ...competitors.map((c) => ({ key: c.channel_id, label: c.title }))]}
           />
         </FilterGroup>
@@ -210,7 +246,7 @@ function FilterGroup({ label, children }) {
 // ── KPI cards ───────────────────────────────────────────────────────────────
 
 const KPI_DEFS = [
-  { key: 'active_competitors', label: 'Активні конкуренти', icon: <Users size={16} />, tone: 'blue', sub: 'канали в моніторингу', delta: 'active_competitors_delta', deltaFormat: 'signed' },
+  { key: 'configured_competitors', label: 'Конкуренти в моніторингу', icon: <Users size={16} />, tone: 'blue', fromSummary: true, sub: 'coverage' },
   { key: 'new_videos', label: 'Нові відео', icon: <Play size={16} />, tone: 'green', sub: (filters) => `за останні ${filters.days} днів`, delta: 'new_videos_delta_percent', deltaFormat: 'percent' },
   { key: 'outlier_videos', label: 'Outlier videos', icon: <Flame size={16} />, tone: 'orange', sub: 'outlier ratio > 1.5x', delta: 'outlier_videos_delta', deltaFormat: 'signed' },
   { key: 'fastest_growth_percent', label: 'Найшвидший ріст', icon: <TrendingUp size={16} />, tone: 'purple', sub: 'fastest_growth_label', deltaFormat: 'raw', valueFormat: 'percent' },
@@ -218,12 +254,16 @@ const KPI_DEFS = [
   { key: 'gap_opportunities', label: 'Gap opportunities', icon: <Target size={16} />, tone: 'cyan', sub: 'високий потенціал', delta: 'gap_opportunities_delta', deltaFormat: 'signed' },
 ];
 
-function KpiCards({ kpis, filters, onCardClick }) {
+function KpiCards({ kpis, summary, filters, onCardClick }) {
   return (
     <section className="cmKpiRow">
       {KPI_DEFS.map((def) => {
-        const value = kpis?.[def.key] ?? 0;
-        const sub = typeof def.sub === 'function' ? def.sub(filters) : (def.sub === 'fastest_growth_label' ? (kpis?.fastest_growth_label || '—') : def.sub);
+        const value = def.fromSummary ? (summary?.[def.key] ?? 0) : (kpis?.[def.key] ?? 0);
+        let sub;
+        if (def.sub === 'coverage') sub = `${summary?.active_publishers ?? 0} активних за ${filters.days} днів`;
+        else if (typeof def.sub === 'function') sub = def.sub(filters);
+        else if (def.sub === 'fastest_growth_label') sub = kpis?.fastest_growth_label || '—';
+        else sub = def.sub;
         const deltaVal = def.delta ? kpis?.[def.delta] : null;
         let deltaText = '';
         let deltaTone = 'green';
@@ -260,7 +300,7 @@ function KpiCards({ kpis, filters, onCardClick }) {
 
 // ── Chart ───────────────────────────────────────────────────────────────────
 
-function TrendChart({ chart, focusedChannel, onPointClick }) {
+function TrendChart({ chart, focusedChannel, onMetricChange, onPointClick }) {
   const series = chart?.series || [];
   const allPoints = series.flatMap((s) => s.points || []);
   const allValues = allPoints.map((p) => Number(p.value) || 0);
@@ -306,7 +346,14 @@ function TrendChart({ chart, focusedChannel, onPointClick }) {
       </div>
       <div className="cmChartMetricTabs">
         {METRIC_OPTIONS.map((opt) => (
-          <span key={opt.key} className={`cmMetricTab ${chart?.metric === opt.key ? 'active' : ''}`}>{opt.label}</span>
+          <button
+            key={opt.key}
+            type="button"
+            className={`cmMetricTab ${chart?.metric === opt.key ? 'active' : ''}`}
+            onClick={() => onMetricChange?.(opt.key)}
+          >
+            {opt.label}
+          </button>
         ))}
       </div>
       <div className="cmChartBody">
@@ -399,10 +446,7 @@ function TrendChart({ chart, focusedChannel, onPointClick }) {
 // ── Top movers ──────────────────────────────────────────────────────────────
 
 function Sparkline({ values = [], color = '#4cb277' }) {
-  if (!values.length) {
-    // Generate slight upward trend placeholder
-    values = [3, 4, 3, 5, 4, 6, 7];
-  }
+  if (!values.length) return null;
   const max = Math.max(...values, 1);
   const min = Math.min(...values, 0);
   const range = max - min || 1;
@@ -416,13 +460,20 @@ function Sparkline({ values = [], color = '#4cb277' }) {
   );
 }
 
-function TopMoversPanel({ movers, onSelect, focusedChannel, onShowAll }) {
+function TopMoversPanel({ movers, onSelect, focusedChannel, onShowAll, competitorId, onReturnToAll }) {
   return (
     <div className="cmCard cmMoversCard">
       <div className="cmCardHead">
         <h2>Лідери росту</h2>
         <button type="button" className="cmCardLink" onClick={onShowAll}>Переглянути всі</button>
       </div>
+      <button
+        type="button"
+        className={`cmReturnAll ${competitorId === 'all' ? 'active' : ''}`}
+        onClick={onReturnToAll}
+      >
+        Всі конкуренти
+      </button>
       <div className="cmMoversHeader">
         <span>Канал</span>
         <span>Views/day</span>
@@ -488,6 +539,7 @@ function FormatBadge({ format }) {
 }
 
 function OutlierBadge({ ratio }) {
+  if (ratio === null || ratio === undefined) return <span className="cmDash">{'\u2014'}</span>;
   const r = Number(ratio) || 0;
   let tone = 'gray';
   if (r >= 2) tone = 'green';
@@ -496,13 +548,53 @@ function OutlierBadge({ ratio }) {
   return <span className={`cmOutlierBadge ${tone}`}>{r.toFixed(1)}x</span>;
 }
 
-function VideosTable({ videos, onDetails, onAction }) {
-  const [visible, setVisible] = useState(12);
-  const slice = videos.slice(0, visible);
+const VIDEO_SORT_COLUMNS = [
+  { key: 'published_at', label: 'Опубліковано' },
+  { key: 'views', label: 'Views' },
+  { key: 'vph', label: 'VPH' },
+  { key: 'engagement_rate', label: 'Engagement' },
+  { key: 'reach_ratio', label: 'Reach \u00d7' },
+  { key: 'outlier_ratio', label: 'Outlier' },
+];
+
+function SortHeader({ col, sort, order, onSort }) {
+  const active = sort === col.key;
+  return (
+    <th
+      className={`cmSortable ${active ? 'active' : ''}`}
+      onClick={() => onSort(col.key)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onSort(col.key); }}
+    >
+      <span className="cmSortHead">
+        {col.label}
+        {active
+          ? (order === 'asc' ? <ChevronUp size={13} /> : <ChevronDown size={13} />)
+          : <ArrowUpDown size={11} className="cmSortIdle" />}
+      </span>
+    </th>
+  );
+}
+
+function VphBadge({ vph, source }) {
+  if (vph === null || vph === undefined) return <span className="cmDash">{'\u2014'}</span>;
+  return (
+    <span className="cmVphCell">
+      {compactNumber(vph)}
+      <span className={`cmVphSrc ${source === 'observed' ? 'observed' : 'estimated'}`}>
+        {source === 'observed' ? 'obs' : 'est'}
+      </span>
+    </span>
+  );
+}
+
+function VideosTable({ videos, total, hasMore, sort, order, onSort, onLoadMore, onDetails, onAction }) {
   return (
     <section className="cmCard cmVideosCard">
       <div className="cmCardHead">
         <h2>Останні відео конкурентів</h2>
+        <span className="cmCardCount">Показано {videos.length} із {total}</span>
       </div>
       <div className="cmVideosTableWrap">
         <table className="cmVideosTable">
@@ -510,18 +602,15 @@ function VideosTable({ videos, onDetails, onAction }) {
             <tr>
               <th>Відео</th>
               <th>Канал</th>
-              <th>Регіон</th>
-              <th>Мова</th>
               <th>Формат</th>
-              <th>Опубліковано</th>
-              <th>Views/day</th>
-              <th>Engagement</th>
-              <th>Outlier</th>
+              {VIDEO_SORT_COLUMNS.map((col) => (
+                <SortHeader key={col.key} col={col} sort={sort} order={order} onSort={onSort} />
+              ))}
               <th>Дія</th>
             </tr>
           </thead>
           <tbody>
-            {slice.map((v) => (
+            {videos.map((v) => (
               <tr key={v.video_id}>
                 <td>
                   <a href={v.url} target="_blank" rel="noreferrer" className="cmVideoCell">
@@ -537,12 +626,12 @@ function VideosTable({ videos, onDetails, onAction }) {
                     <span>{v.channel_title}</span>
                   </div>
                 </td>
-                <td>{REGION_LABEL[v.region] || '—'}</td>
-                <td>{LANGUAGE_LABEL[v.language] || '—'}</td>
                 <td><FormatBadge format={v.format} /></td>
                 <td>{(v.published_at || '').replace('T', ' ').slice(0, 16)}</td>
-                <td>{compactNumber(v.views_per_day)}</td>
-                <td>{((Number(v.engagement_rate) || 0) * 100).toFixed(1)}%</td>
+                <td>{compactNumber(v.views)}</td>
+                <td><VphBadge vph={v.vph} source={v.vph_source} /></td>
+                <td>{formatEngagement(v.engagement_rate)}</td>
+                <td>{formatReach(v.reach_ratio)}</td>
                 <td><OutlierBadge ratio={v.outlier_ratio} /></td>
                 <td>
                   <div className="cmRowActions">
@@ -557,15 +646,15 @@ function VideosTable({ videos, onDetails, onAction }) {
                 </td>
               </tr>
             ))}
-            {!slice.length && (
+            {!videos.length && (
               <tr><td colSpan="10" className="cmEmptyState">Немає відео за поточними фільтрами</td></tr>
             )}
           </tbody>
         </table>
       </div>
-      {visible < videos.length && (
-        <button type="button" className="cmShowMore" onClick={() => setVisible(visible + 12)}>
-          Показати ще 12 відео <ChevronDown size={14} />
+      {hasMore && (
+        <button type="button" className="cmShowMore" onClick={onLoadMore}>
+          Показати ще 40 відео <ChevronDown size={14} />
         </button>
       )}
     </section>
@@ -717,8 +806,20 @@ function ErrorState({ message, onRetry }) {
 
 // ── Detail modal ────────────────────────────────────────────────────────────
 
+function ModalMetric({ label, value, hint }) {
+  return (
+    <div>
+      <span className="cmGapHint" title={hint || ''}>
+        {label}{hint ? <Info size={11} /> : null}
+      </span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
 function VideoDetailsModal({ video, onClose }) {
   if (!video) return null;
+  const subs = video.channel_subscribers;
   return (
     <div className="cmModalOverlay" onClick={onClose}>
       <div className="cmModal" onClick={(e) => e.stopPropagation()}>
@@ -727,36 +828,132 @@ function VideoDetailsModal({ video, onClose }) {
           <button type="button" onClick={onClose}>×</button>
         </header>
         <div className="cmModalGrid">
+          <ModalMetric label="Канал" value={video.channel_title} />
+          <ModalMetric label="Підписники" value={subs ? compactNumber(subs) : '\u2014'} />
+          <ModalMetric label="Views" value={compactNumber(video.views)} />
+          <ModalMetric label="Likes" value={compactNumber(video.likes)} />
+          <ModalMetric label="Comments" value={compactNumber(video.comments)} />
+          <ModalMetric label="Engagement" value={formatEngagement(video.engagement_rate)} hint="Engagement = (likes + comments) / views" />
+          <ModalMetric label="Reach \u00d7" value={formatReach(video.reach_ratio)} hint="Reach \u00d7 = views / subscribers" />
           <div>
-            <span className="cmGapHint">Канал</span>
-            <strong>{video.channel_title}</strong>
+            <span className="cmGapHint">VPH</span>
+            <strong>
+              {video.vph === null || video.vph === undefined ? '\u2014' : compactNumber(video.vph)}{' '}
+              <span className={`cmVphSrc ${video.vph_source === 'observed' ? 'observed' : 'estimated'}`}>
+                {vphBadgeLabel(video.vph_source)}
+              </span>
+            </strong>
           </div>
-          <div>
-            <span className="cmGapHint">Outlier ratio</span>
-            <strong>{(Number(video.outlier_ratio) || 0).toFixed(2)}x</strong>
-          </div>
-          <div>
-            <span className="cmGapHint">Views</span>
-            <strong>{compactNumber(video.views)}</strong>
-          </div>
-          <div>
-            <span className="cmGapHint">Views/day</span>
-            <strong>{compactNumber(video.views_per_day)}</strong>
-          </div>
-          <div>
-            <span className="cmGapHint">Engagement</span>
-            <strong>{((Number(video.engagement_rate) || 0) * 100).toFixed(2)}%</strong>
-          </div>
-          <div>
-            <span className="cmGapHint">Регіон / Мова</span>
-            <strong>{REGION_LABEL[video.region]} · {LANGUAGE_LABEL[video.language]}</strong>
-          </div>
+          <ModalMetric label="Outlier ratio" value={formatOutlier(video.outlier_ratio)} hint="Outlier = VPH відео / median VPH каналу" />
+          <ModalMetric label="Baseline" value={video.baseline_status === 'ready' ? 'Готово' : 'Недостатньо даних'} />
+          <ModalMetric label="Snapshots" value={video.snapshot_count ?? 1} />
+          <ModalMetric label="Регіон / Мова" value={`${REGION_LABEL[video.region] || '\u2014'} · ${LANGUAGE_LABEL[video.language] || '\u2014'}`} />
         </div>
         <footer>
           <a className="cmGhostBtn" href={video.url} target="_blank" rel="noreferrer"><ExternalLink size={14} /> Відкрити на YouTube</a>
         </footer>
       </div>
     </div>
+  );
+}
+
+const RSS_STATUS_LABEL = {
+  ok: { label: 'OK', tone: 'green' },
+  stale: { label: 'Застаріло', tone: 'yellow' },
+  error: { label: 'Помилка', tone: 'red' },
+  never_checked: { label: 'Не перевірено', tone: 'gray' },
+};
+
+function DataHealthBanner({ health }) {
+  if (!shouldShowDataHealthBanner(health)) return null;
+  return (
+    <div className="cmDataHealth">
+      <AlertTriangle size={16} />
+      <span>
+        PostgreSQL snapshots недоступні. Показано fallback-дані з локальних artifacts;
+        частина VPH та channel stats може бути застарілою.
+      </span>
+    </div>
+  );
+}
+
+function MonitoringCoverage({ summary, competitors }) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+  const rows = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    if (!needle) return competitors;
+    return competitors.filter((c) =>
+      (c.title || '').toLowerCase().includes(needle)
+      || (c.handle || '').toLowerCase().includes(needle)
+      || (c.market || '').toLowerCase().includes(needle));
+  }, [competitors, q]);
+  return (
+    <section className="cmCard cmCoverage">
+      <div className="cmCoverageHead">
+        <div>
+          <h2>Покриття моніторингу</h2>
+          <p className="cmCoverageSummary">
+            {summary?.configured_competitors ?? 0} канали · {summary?.checked_ok ?? 0} перевірено · {summary?.stale ?? 0} stale
+            {summary?.error ? ` · ${summary.error} помилок` : ''}
+            {summary?.never_checked ? ` · ${summary.never_checked} не перевірено` : ''}
+          </p>
+        </div>
+        <button type="button" className="cmCardLink" onClick={() => setOpen((o) => !o)}>
+          {open ? 'Сховати канали' : 'Показати канали'}
+          {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+      </div>
+      {open && (
+        <>
+          <div className="cmCoverageSearch">
+            <Search size={14} />
+            <input placeholder="Пошук каналу..." value={q} onChange={(e) => setQ(e.target.value)} />
+          </div>
+          <div className="cmVideosTableWrap">
+            <table className="cmVideosTable cmCoverageTable">
+              <thead>
+                <tr>
+                  <th>Канал</th>
+                  <th>Ринок</th>
+                  <th>RSS статус</th>
+                  <th>Остання перевірка</th>
+                  <th>Останнє відео</th>
+                  <th>Відео за період</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((c) => {
+                  const st = RSS_STATUS_LABEL[c.rss_status] || RSS_STATUS_LABEL.never_checked;
+                  return (
+                    <tr key={c.channel_id}>
+                      <td>
+                        <div className="cmVideoChannel">
+                          <span className="cmVideoChannelAvatar">{(c.title || '?').slice(0, 2).toUpperCase()}</span>
+                          <span>{c.title}</span>
+                        </div>
+                      </td>
+                      <td>{c.market || '\u2014'}</td>
+                      <td><span className={`cmRssBadge ${st.tone}`}>{st.label}</span></td>
+                      <td>{c.last_checked_at ? c.last_checked_at.replace('T', ' ').slice(0, 16) : '\u2014'}</td>
+                      <td>
+                        {c.latest_video_id
+                          ? <a href={`https://www.youtube.com/watch?v=${c.latest_video_id}`} target="_blank" rel="noreferrer">
+                              {c.latest_video_published_at ? c.latest_video_published_at.slice(0, 10) : 'відкрити'}
+                            </a>
+                          : '\u2014'}
+                      </td>
+                      <td>{c.videos_in_period ?? 0}</td>
+                    </tr>
+                  );
+                })}
+                {!rows.length && <tr><td colSpan="6" className="cmEmptyState">Нічого не знайдено</td></tr>}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+    </section>
   );
 }
 
@@ -774,7 +971,11 @@ export default function CompetitorsPage() {
     only_outliers: false,
     only_new: false,
     only_high_gap: false,
-    high_evidence: true,
+    high_evidence: false,
+    video_sort: 'published_at',
+    video_order: 'desc',
+    video_limit: 40,
+    video_offset: 0,
   });
   const [search, setSearch] = useState('');
   const [focusedChannel, setFocusedChannel] = useState(null);
@@ -789,12 +990,32 @@ export default function CompetitorsPage() {
   const gapsRef = useRef(null);
 
   const kpis = data?.kpis || {};
+  const summary = data?.monitoring_summary || {};
   const competitors = data?.competitors || [];
   const movers = data?.top_movers || [];
   const videos = data?.videos || [];
+  const videosTotal = data?.videos_total ?? videos.length;
+  const videosHasMore = !!data?.videos_has_more;
   const outliers = data?.outliers || [];
   const clusters = data?.topic_clusters || [];
   const gaps = data?.gaps || [];
+
+  // Any filter or sort change resets pagination back to the first page.
+  const updateFilters = (patch) => setFilters((f) => resetVideoPaging(f, patch));
+  const handleReturnToAll = () => {
+    setFocusedChannel(null);
+    updateFilters({ competitor_id: 'all' });
+  };
+  const handleSort = (field) => updateFilters(nextVideoSort(filters.video_sort, filters.video_order, field));
+  const handleLoadMore = () => setFilters((f) => ({ ...f, video_limit: Math.min((f.video_limit || 40) + 40, 1000) }));
+  const handleSearchChange = (value) => {
+    setSearch(value);
+    setFilters((f) => resetVideoPaging(f));
+  };
+  const handleCompetitorChange = (competitorId) => {
+    setFocusedChannel(competitorId === 'all' ? null : competitorId);
+    updateFilters({ competitor_id: competitorId });
+  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -812,14 +1033,14 @@ export default function CompetitorsPage() {
     if (key === 'new_videos') {
       videosTableRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else if (key === 'outlier_videos') {
-      setFilters({ ...filters, only_outliers: true });
+      updateFilters({ only_outliers: true });
     } else if (key === 'topic_clusters') {
       topicsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else if (key === 'gap_opportunities') {
       gapsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else if (key === 'fastest_growth_percent' && movers.length) {
       setFocusedChannel(movers[0].competitor_id);
-    } else if (key === 'active_competitors') {
+    } else if (key === 'configured_competitors') {
       videosTableRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
@@ -892,7 +1113,7 @@ export default function CompetitorsPage() {
     return <div className="cmPage"><EmptyCompetitors /></div>;
   }
 
-  if (data && competitors.length > 0 && videos.length === 0 && outliers.length === 0 && !filters.only_outliers && !filters.only_new && !filters.high_evidence && !search) {
+  if (data && competitors.length > 0 && videos.length === 0 && outliers.length === 0 && !filters.only_outliers && !filters.only_new && !search) {
     return <div className="cmPage"><EmptyData onRefresh={handleRefresh} /></div>;
   }
 
@@ -900,30 +1121,45 @@ export default function CompetitorsPage() {
     <div className="cmPage">
       <CompetitorHeader
         search={search}
-        setSearch={setSearch}
+        setSearch={handleSearchChange}
         lastUpdated={lastUpdated}
         refreshing={refreshing}
         onRefresh={handleRefresh}
       />
-      <FilterBar filters={filters} setFilters={setFilters} competitors={competitors} />
-      <KpiCards kpis={kpis} filters={filters} onCardClick={handleKpiClick} />
+      <DataHealthBanner health={data?.data_health} />
+      <FilterBar filters={filters} setFilters={updateFilters} competitors={competitors} onCompetitorChange={handleCompetitorChange} />
+      <KpiCards kpis={kpis} summary={summary} filters={filters} onCardClick={handleKpiClick} />
+      <MonitoringCoverage summary={summary} competitors={competitors} />
 
       <div className="cmMainGrid">
-        <TrendChart chart={data?.chart} focusedChannel={focusedChannel} onPointClick={(s) => setFocusedChannel(s.competitor_id)} />
+        <TrendChart
+          chart={data?.chart}
+          focusedChannel={focusedChannel}
+          onMetricChange={(metric) => updateFilters({ metric })}
+          onPointClick={(s) => setFocusedChannel(s.competitor_id)}
+        />
         <TopMoversPanel
           movers={movers}
           focusedChannel={focusedChannel}
+          competitorId={filters.competitor_id}
+          onReturnToAll={handleReturnToAll}
           onSelect={(m) => {
             setFocusedChannel(m.competitor_id);
-            setFilters({ ...filters, competitor_id: m.competitor_id });
+            updateFilters({ competitor_id: m.competitor_id });
           }}
-          onShowAll={() => showToast?.('Повний список лідерів росту: TBD', 'blue')}
+          onShowAll={handleReturnToAll}
         />
       </div>
 
       <div ref={videosTableRef}>
         <VideosTable
           videos={videos}
+          total={videosTotal}
+          hasMore={videosHasMore}
+          sort={filters.video_sort}
+          order={filters.video_order}
+          onSort={handleSort}
+          onLoadMore={handleLoadMore}
           onDetails={setActiveVideo}
           onAction={(v) => showToast?.(`Меню дій: ${v.title.slice(0, 40)}...`, 'blue')}
         />
@@ -933,7 +1169,7 @@ export default function CompetitorsPage() {
         <OutlierGrid
           outliers={outliers}
           onCreateOpportunity={handleCreateOpportunity}
-          onShowAll={() => setFilters({ ...filters, only_outliers: true })}
+          onShowAll={() => updateFilters({ only_outliers: true })}
         />
         <div ref={topicsRef}>
           <TopicClustersPanel
